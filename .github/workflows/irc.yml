@@ -15,7 +15,7 @@ jobs:
           nickname: shithub
           message: |
             ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
-            ${{ join(github.event.commits.*.message) }} TEST
+            ${{ join(github.event.commits.*.message) }} \002TEST\002
 #      - name: irc pull request
 #        uses: rectalogic/notify-irc@v1
 #        if: github.event_name == 'pull_request'
