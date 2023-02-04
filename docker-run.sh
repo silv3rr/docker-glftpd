@@ -42,6 +42,11 @@ else
   docker pull $DOCKER_IMAGE
 fi
 
+BOT_STATUS="$(
+  docker image inspect --format='{{ index .Config.Labels "gl.sitebot.setup" }}' "$DOCKER_IMAGE" \
+    2>/dev/null
+)"
+
 # first reset any customizatons
 
 sed -i '/^pasv_addr.*/d' glftpd/glftpd.conf || {
@@ -56,6 +61,11 @@ sed -i '/### pzs-ng:start*/,/^### pzs-ng:end/d' glftpd/glftpd.conf || {
   echo "ERROR: could not write to glftpd/glftpd.conf, exiting..."
   exit 1
 }
+
+if [ -w glftpd/sitebot/eggdrop.conf ]; then
+  IRC_SERVER="  you.need.to.change.this:6667\n  another.example.com:7000:password\n  [2001:db8:618:5c0:263::]:6669:password\n  ssl.example.net:+6697"
+  sed -i '/^set servers {/,/^}$/c\set servers {\n'"$IRC_SERVER"'\n}\n' glftpd/sitebot/eggdrop.conf 2>/dev/null
+fi
 
 # options and custom conf
 
@@ -135,20 +145,20 @@ if [ -n "$GLFTPD_SITE" ]; then
   ARGS+=" --volume $(pwd)/glftpd/site:/glftpd/site:rw "
 fi
 
-BOT_STATUS="$(
-  docker image inspect --format='{{ index .Config.Labels "gl.sitebot.setup" }}' "$DOCKER_IMAGE" \
-    2>/dev/null
-)"
-
 if [ "${BOT_STATUS:-0}" -eq 1 ]; then
   #chown 999 glftpd/sitebot/LamestBot.{chan,user}
   if [ -n "$IRC_SERVER" ]; then
-      sed -i '/^set servers {/,/^}$/c\set servers {\n  '"$IRC_SERVER"'\n}\n' glftpd/sitebot/eggdrop.conf || {
-        echo "ERROR: could not write to eggdrop.conf, exiting..."
+      if [ -w glftpd/sitebot/eggdrop.conf ]; then
+        sed -i '/^set servers {/,/^}$/c\set servers {\n  '"$IRC_SERVER"'\n}\n' glftpd/sitebot/eggdrop.conf || {
+          echo "ERROR: could not write to eggdrop.conf, exiting..."
+          exit 1
+        }
+      else
+        echo "ERROR: eggdrop.conf not writable by current user, exiting..."
         exit 1
-      }
+      fi
   elif grep -Eiq "you.need.to.change.this:6667" glftpd/sitebot/eggdrop.conf; then
-      echo "WARNING: eggdrop.conf has no irc server set"
+      echo "WARNING: no irc server set in eggdrop.conf"
   fi
   if [ ! -f glftpd/sitebot/LamestBot.user ]; then
     cat <<-'_EOF_' >glftpd/sitebot/LamestBot.user
