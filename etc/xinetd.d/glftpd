@@ -1,0 +1,14 @@
+service glftpd
+{
+        disable = no
+        flags                   = REUSE IPv6
+        socket_type             = stream
+        protocol                = tcp
+        wait                    = no
+        user                    = root
+        server                  = /glftpd/bin/glftpd
+        server_args             = glftpd -l -o -i -r /glftpd/glftpd.conf -s/glftpd/bin/glstrings.bin -e -x
+        #if you do not want to add anything to /etc/services you can use
+        #type = UNLISTED
+        #port = 1337
+}

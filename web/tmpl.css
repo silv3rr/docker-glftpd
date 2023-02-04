@@ -1,0 +1,233 @@
+body {
+    margin-left: 6px;
+}
+iframe {
+    display: block;
+    margin: 0 auto;
+    border: 0;
+}
+h1 {
+    text-decoration: underline;
+    text-decoration-color: lightblue;    
+}
+h5 {
+    color: black;
+    padding-top: 2px;
+    padding-bottom: 5px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+h6 {
+    color: black;
+    background-color: rgb(238, 238, 238);
+    padding: 1px;
+    padding-left: 5px;
+    margin-top: 1px;
+    margin-bottom: 8px;
+}
+h6.out{
+    margin-bottom:0px !important;
+    width: 900px;
+}
+h6.log{
+    margin-bottom:0px !important;
+    width:auto;
+}
+pre.out {
+    display: inline-block;
+    background: black;
+    color: lightgreen;
+    width: 900px;
+}
+button, input, optgroup, select, textarea {
+    border-radius: 6px;
+}
+button:hover {
+    color: lightgray;
+    background-color: #6c757d;
+}
+.btn-back, .btn-top, .btn-end {  
+    left: 85%;
+    font-size: 1.2em;
+    background-color :#eaeaeacc;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-weight: bolder;
+    color: #007bff;
+}
+.btn-back {
+    top: 5%;
+}
+.btn-top {
+    bottom: 15%;
+}
+.btn-end {
+    bottom: 5%;
+}
+.btn-top:hover, .btn-end:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+.btn-primary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+.btn-primary:hover {
+    color: lightgray !important;
+    background-color: #6c757d !important;
+ }
+.btn-collapse {
+    font-size: 1.25rem;
+    color: black;
+    background-color: rgb(218, 232, 236);
+    margin-bottom: 25px;
+    padding: 8px;
+    border-radius: 6px;
+    border-color: gray;
+    border: 10px;
+}
+.btn-collapse .fa-chevron-up {
+    display: none;
+}
+.btn-collapse:hover {
+    color: white;
+    background-color: rgb(31, 124, 211);
+    /*
+    cursor: pointer;
+    text-decoration: underline;
+    */
+}
+label {
+    margin-bottom: 0px;
+    margin-right: 8px;
+}
+/*
+label:hover {
+    text-decoration: underline;
+}
+*/
+input, button {
+    margin-left: 5px;
+}
+.status {
+    margin-top: 15px;
+    margin-bottom: 35px;
+    padding-top: 15px;
+    padding-bottom: 8px;
+    border: 2px dashed gray;
+    display: inline-block;
+    width: 900px;
+}
+.status #shit {
+    margin-left: 15px;
+    margin-bottom: 15px;
+}
+.status #up, #down, #running, #ts, #refresh {
+    display: inline-block;
+    margin-left: 3px;
+    margin-right: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+
+}
+.status #title {
+    display:inline-block;
+    background-color:rgb(238, 238, 238);
+    font-size: 1.25rem;
+    margin-left: 15px;
+    margin-right: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.status #label {
+    display: inline-block;
+    margin-left: 4px;
+    margin-right: 0px;
+    font-size: 1.2em;
+    text-decoration: underline;
+}
+.status #up {
+    background-color: lightgreen;
+}
+.status #down {
+    background-color: red;
+}
+.status #running {
+    background-color: orange;
+}
+.status #refresh {
+    font-size: 0.9em;
+    background-color: lightblue;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 4px;
+    padding-right: 5px;
+    border: solid 1px;
+    border-radius: 6px;
+    box-shadow: 1px 1px 1px 1px darkgray;
+}
+.status #refresh a {
+    font-weight: bold;
+    color: black;
+}
+.status #refresh:hover {
+    background-color: lightgray;
+}
+.status #refresh a:hover {
+    color: blue;
+}
+.status #refresh a:active {
+    color: gray;
+}
+.cmd {
+    padding: 15px;
+    padding-bottom: 10px;
+    border: 1px dotted black;
+    width: 900px;
+    margin-bottom: 25px;
+}
+.cmd #iptip {  
+    width: 150px;
+}
+.cmd #iptip:hover {
+    border: 2px solid gray;
+}
+.cmd #ip {
+    margin-top: 10px;
+}
+.cbview {
+    border: 2px solid gray;
+    border-color: orangered;
+    padding: 15px;
+    width: 900px;
+    text-align: center;
+}
+span.small {
+    font-size: smaller;
+}
+hr.vsep {
+    margin-left: 10px;
+    margin-right: 10px;
+    border: none;
+    border-left:
+    2px dotted black;
+    display: inline
+}
+.hspace {
+    margin-bottom: 30px;
+}
+.fas {
+    margin-right: 6px;
+}
+.fa-chevron-right {
+    margin-right: 12px;
+}
+.enabled-group {
+    display:block;
+    margin-left:16px
+}
+.disabled-group {
+    display:none;
+}
