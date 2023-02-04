@@ -31,16 +31,28 @@ ARGS+=" --network shit "
 RM=1
 
 DOCKER_IMAGE="glftpd:latest"
-LOCAL_IMG=$(
+
+LOCAL_IMAGE=$(
   docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE"
 )
-if [ -n "$LOCAL_IMG" ]; then
+
+if [ -n "$LOCAL_IMAGE" ]; then
   echo "Using local 'glftpd' image"
 else
-  echo "Pulling 'docker-glftpd' image from ghcr.io"
-  DOCKER_IMAGE="ghcr.io/silv3rr/docker-glftpd:latest"
-  docker pull $DOCKER_IMAGE
+  FULL_IMAGE=$(
+    docker image ls --format='{{.Repository}}' --filter reference="ghcr.io/silv3rr/docker-glftpd:full"
+  )
+  if [ -z "$FULL_IMAGE" ]; then
+    echo "Pulling 'docker-glftpd' image from ghcr.io"
+    DOCKER_IMAGE="ghcr.io/silv3rr/docker-glftpd:latest"
+    docker pull $DOCKER_IMAGE
+  fi
 fi
+
+ZS_STATUS="$(
+  docker image inspect --format='{{ index .Config.Labels "gl.zipscript.setup" }}' "$DOCKER_IMAGE" \
+    2>/dev/null
+)"
 
 BOT_STATUS="$(
   docker image inspect --format='{{ index .Config.Labels "gl.sitebot.setup" }}' "$DOCKER_IMAGE" \
@@ -73,11 +85,6 @@ if [ -n "$GLFTPD_PORT" ] && ! [[ $GLFTPD_PORT =~ ^[0-9]{1,5}$ ]]; then
   echo "WARNING: listen port incorrectly set \"$GLFTPD_PORT\", using default \"1337\"..."
   GLFTPD_PORT=1337
 fi
-
-ZS_STATUS="$(
-  docker image inspect --format='{{ index .Config.Labels "gl.zipscript.setup" }}' "$DOCKER_IMAGE" \
-    2>/dev/null
-)"
 
 if [ "${ZS_STATUS:-0}" -eq 1 ]; then
   GLFTPD_CONF=1
@@ -204,10 +211,10 @@ fi
 # start optional web interface
 
 DOCKER_IMAGE="glftpd-web:latest"
-LOCAL_IMG=$(
+LOCAL_IMAGE=$(
   docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE"
 )
-if [ -n "$LOCAL_IMG" ]; then
+if [ -n "$LOCAL_IMAGE" ]; then
   echo "Using local 'glftpd-web' image"
 else
   echo "Pulling 'docker-glftpd-web' image from ghcr.io"
