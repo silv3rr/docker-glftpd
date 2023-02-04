@@ -16,7 +16,7 @@ jobs:
           #message: |-
           #  ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
           #  commit: ${{ join(github.event.commits.*.message, ', ') }} ${{ 0x02 }} TEST
-          message: "${{ 0x02 }} TEST"
+          message: ${{ format('{0}TEST', 0x02 }}
 #      - name: irc pull request
 #        uses: rectalogic/notify-irc@v1
 #        if: github.event_name == 'pull_request'
