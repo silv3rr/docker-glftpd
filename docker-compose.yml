@@ -1,0 +1,45 @@
+---
+###################################################################   ####  # ##
+# >> DOCKER-COMPOSE-GLFTPD
+###################################################################   ####  # ##
+
+version: "3"
+services:
+  glftpd:
+    image: ghcr.io/silv3rr/docker-glftpd:latest
+    volumes:
+      - ./glftpd/site:/glftpd/site:rw
+      - ./glftpd/glftpd.conf:/glftpd/glftpd.conf
+      - ./glftpd/etc:/glftpd/etc
+      - ./glftpd/ftp-data/users:/glftpd/ftp-data/users
+      - ./glftpd/sitebot/eggdrop.conf:/glftpd/sitebot/eggdrop.conf
+      - ./glftpd/sitebot/LamestBot.chan:/glftpd/sitebot/LamestBot.chan
+      - ./glftpd/sitebot/LamestBot.user:/glftpd/sitebot/LamestBot.user
+      - ./pzs-ng/sitebot/ngBot.conf:/glftpd/sitebot/pzs-ng/ngBot.conf
+    ports:
+      - "1337:1337"
+      # uncomment for bot
+      # - "3333:3333"
+      # - "5000-6000:5000-6000"
+    container_name: glftpd
+    hostname: glftpd
+    environment:
+      - GLFTPD_CONF=0
+      # uncomment to change password
+      # - GLFTPD_PASSWD=glftpd
+      - GLFTPD_PERM_UDB=0
+      - GLFTPD_SITE=0
+      - GLFTPD_PORT=1337
+      - GLFTPD_PASV_PORTS=5000-6000
+  web:
+    image: ghcr.io/silv3rr/docker-glftpd-web:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock    
+      - ./glftpd/glftpd.conf:/glftpd/glftpd.conf
+      - ./glftpd/sitebot/eggdrop.conf:/glftpd/eggdrop.conf
+      - ./pzs-ng/sitebot/pzs-ng/ngBot.conf:/glftpd/ngBot.conf
+      - ./glftpd/site:/site/glftpd
+    ports:
+      - 4444:443
+    container_name: web
+    hostname: web

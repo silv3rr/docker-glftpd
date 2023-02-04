@@ -1,0 +1,4 @@
+GROUP glftpd
+SLOTS -1 0 0 0
+GROUPNFO
+SIMULT 0
