@@ -1,6 +1,11 @@
 name: "Push Notification"
 #on: [push, pull_request, create]
-on: push
+#on: push
+on:
+  push:
+    paths: 
+      - '**'
+      - '!.github/**'    
 
 jobs:
   test:
