@@ -10,11 +10,10 @@ jobs:
         uses: rectalogic/notify-irc@v1
         if: github.event_name == 'push'
         with:
-          channel: "#glhelp"
+          channel: "#gltest"
           server: "efnet.port80.se"
           nickname: shithub
           message: |
-            ${{ github.repositoryUrl }}
             ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
             ${{ join(github.event.commits.*.message) }}
 #      - name: irc pull request
