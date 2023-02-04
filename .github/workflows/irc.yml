@@ -10,7 +10,7 @@ jobs:
         uses: rectalogic/notify-irc@v1
         if: github.event_name == 'push'
         with:
-          channel: "#gltest"
+          channel: "#glhelp"
           server: "efnet.port80.se"
           nickname: shithub
           message: |-
