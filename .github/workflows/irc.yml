@@ -13,8 +13,10 @@ jobs:
           channel: "#gltest"
           server: "efnet.port80.se"
           nickname: shithub
-          message: |-
-            ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }} commit: ${{ join(github.event.commits.*.message, ', ') }} ${{ 0x02 }} TEST
+          #message: |-
+          #  ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
+          #  commit: ${{ join(github.event.commits.*.message, ', ') }} ${{ 0x02 }} TEST
+          message: ${{ 0x02 }} TEST
 #      - name: irc pull request
 #        uses: rectalogic/notify-irc@v1
 #        if: github.event_name == 'pull_request'
