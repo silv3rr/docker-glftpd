@@ -28,8 +28,8 @@ jobs:
           docker push ghcr.io/silv3rr/docker-glftpd:latest
           docker push ghcr.io/silv3rr/docker-glftpd-web:latest
       - name: Build full image
-        run: INSTALL_WEB=1 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh
-      - name: Push fill image
+        run: INSTALL_WEB=0 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh
+      - name: Push full image
         run: |
           docker tag glftpd:latest ghcr.io/silv3rr/docker-glftpd:full
           docker push ghcr.io/silv3rr/docker-glftpd:full
