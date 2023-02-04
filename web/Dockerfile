@@ -29,13 +29,13 @@ RUN apk add --no-cache \
     # adduser -S -D -H -u 60101 -h /web -G nginx -g nginx nginx && \
     install -d -m 0755 -o nginx -g nginx /run/nginx && \
     install -d -m 0755 -o nginx -g nginx /run/php && \
-    # set passwords
     rm /etc/nginx/http.d/default.conf && \
     ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log && \
     sed -i 's|listen = 127.0.0.1:9000|listen = /run/php/php8-fpm.sock|' /etc/php8/php-fpm.d/www.conf && \
     sed -i 's|;listen.owner = nobody|listen.owner = nginx|' /etc/php8/php-fpm.d/www.conf && \
     sed -i 's|;listen.group = nobody|listen.owner = nginx|' /etc/php8/php-fpm.d/www.conf && \
+    # set passwords
     _htpasswd='shit:$apr1$8kedvKJ7$PuY2hy.QQh6iLP3Ckwm740'; \
     test -n "$WEB_PASSWORD" && { \
       _htpasswd="$( echo $WEB_PASSWORD | htpasswd -n -i shit )"; \

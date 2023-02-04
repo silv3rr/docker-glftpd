@@ -18,7 +18,6 @@ It uses these default settings:
 - ftp login: glftpd/glftpd, internal ip ranges allowed
 - no permanent config, udb or storage
 - does not include zs and bot component
-- container gets removed when stopped
 
 Test connection: `./test/login.sh` (also shows ip ;p)
 
@@ -32,7 +31,7 @@ Image tagged 'full' includes zs and bot component
 
 _(build with `INSTALL_ZS=1` `INSTALL_BOT=1`)_
 
-By using runtime environment variables glftpd be be configured, use a permanent userdb, change site storage and add components. It's also possible to edit gl and pzs-ng config files.
+By using runtime environment variables glftpd can be configured, use a permanent userdb, change site storage and add components. It's also possible to edit gl and pzs-ng config files.
 
 Some changes require either the 'full' image or a local image build (and/or restarting container).
 
@@ -60,7 +59,7 @@ Takes care of changing glftpd conf and docker runtime args for you. And if avail
 
 The script will check for a local image first and if it's not available it'll use the image from github registry instead. It will also try to setup as much stuff as possible. Like glftpd ip/port, adding mounts and if you enabled pzs-ng it will add required cfg to gl conf for you. It also sets up sitebot.
 
-The container name will be `glftpd` with same hostname and a `web` container. Both use the 'shit' network.
+The container name will be `glftpd` with same hostname and a `web` container. Both use the 'shit' network. By default container gets removed when stopped.
 
 For all available runtime options see comments inside docker-run.sh.
 
@@ -69,10 +68,10 @@ See below if you prefer using docker-compose.
 ### Example
 
 ```
-# change gl ports 
+# change gl ports:
 GLFTPD_CONF=1 GLFTPD_PORT="7113" GLFTPD_PASV_PORTS="8888-9999" ./docker-run.sh
 
-# permanent gl config and storage using local image
+# permanent gl config and storage:
 GLFTPD_CONF=1 GLFTD_PERM_UDB=1 GLFTPD_SITE=1 ./docker-run.sh
 
 # or, set your own args:
@@ -116,7 +115,7 @@ Make sure your source ip is whitelisted and you're using the correct user/pass. 
 
 Cutting-edge tech used:
 
-- PHP, some JQuery and Bootstrap 5
+- PHP, some JQuery and Bootstrap4
 - Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/)
 - Web Terminal: [GoTTY](https://github.com/sorenisanerd/gotty)
 
@@ -157,7 +156,9 @@ Cutting-edge tech used:
 - glftpd/sitebot/LamestBot.chan (needs chown 999)
 - pzs-ng/sitebot/ngBot.conf (needs chown 999)
 - pzs-ng/zipscript/conf/zsconfig.h
+
 .
+
 - glftpd/site (used as bind mount dir)
 
 ### Scripts
