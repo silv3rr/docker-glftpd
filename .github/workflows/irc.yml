@@ -11,7 +11,7 @@ jobs:
         if: github.event_name == 'push'
         with:
           channel: "#glhelp"
-          server: "port80.efnet.se"
+          server: "efnet.port80.se"
           nickname: shithub
           message: |
             ${{ github.repositoryUrl }}
