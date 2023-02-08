@@ -1,7 +1,7 @@
+tmp/
 glftpd/glftpd.conf
 glftpd/sitebot/eggdrop.conf
 glftpd/sitebot/LamestBot.chan
 glftpd/sitebot/LamestBot.user
-tmp/
 *.bak
 *.swp
