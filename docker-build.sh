@@ -43,12 +43,11 @@ docker build \
 if [ "${INSTALL_WEB:-0}" -eq 1 ]; then
   DOCKER_GID="$( getent group docker | cut -d: -f3 )"
   if [ -z "$DOCKER_GID" ]; then
-    DOCKER_GID=999
-    echo "WARNING: docker group not found (using gid $DOCKER_GID)"
+    echo "WARNING: docker group not found"
   fi
   docker build \
     $ARGS \
-    --build-arg "$DOCKER_GID" \
+    --build-arg DOCKER_GID="${DOCKER_GID:-999}" \
     --tag "glftpd-web:latest" \
     web
 fi
