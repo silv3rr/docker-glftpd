@@ -64,7 +64,7 @@ services:
       - ./glftpd/site:/site/glftpd
     ports:
       - 4444:443
-    container_name: web
+    container_name: glftpd-web
     hostname: web
     #environment:
 
