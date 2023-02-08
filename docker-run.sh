@@ -200,8 +200,8 @@ fi
 if [ "${FORCE:-0}" -eq 1 ]; then
   echo "Making sure existing container(s) are removed first..."
   for i in glftpd glftpd-web ghcr.io/silv3rr/docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:full ghcr.io/silv3rr/docker-glftpd-web:latest; do
-    if docker ps --format '{{.Image}} {{.Names}}' | grep -Eiq "^(${i}| ${i}$)"; then
-      echo docker rm -f -v "$i" 2>/dev/null
+    if docker ps --format '{{.ID}} {{.Image}} {{.Names}}' | grep -Eiq " (${i} |${i}$)"; then
+      docker rm -f -v "$(echo "$i"|cut -d" " -f1)" 2>/dev/null
     fi
   done
 fi
