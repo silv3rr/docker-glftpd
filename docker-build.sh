@@ -42,8 +42,9 @@ docker build \
 
 if [ "${INSTALL_WEB:-0}" -eq 1 ]; then
   DOCKER_GID="$( getent group docker | cut -d: -f3 )"
-  if [ "$DOCKER_GID" = "123" ] || [ -z "$DOCKER_GID" ]; then
-    DOCKER_GID=998
+  if [ -z "$DOCKER_GID" ]; then
+    DOCKER_GID=999
+    echo "WARNING: docker group not found (using gid $DOCKER_GID)"
   fi
   docker build \
     $ARGS \
