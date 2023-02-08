@@ -43,8 +43,7 @@ RUN apk add --no-cache \
       sed -i -r "s|(^ *'admin' => ).*|\1"$_fm_hash"'|" tinyfilemanager/config.php; \
     }; \
     echo "$_htpasswd" > /etc/nginx/.htpasswd && \ 
-    test "$DOCKER_GID" -eq 123 && DOCKER_GID=998 && \
-    addgroup -g ${DOCKER_GID:-998} docker || true && \
+    addgroup -g ${DOCKER_GID:-998} docker && \
     adduser nobody docker || true && \
     addgroup nobody ping || true && \
     mkdir /docker-entrypoint.d && \
