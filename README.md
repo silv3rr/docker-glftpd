@@ -19,21 +19,21 @@ It uses these default settings:
 - no permanent config, udb or storage
 - does not include zs and bot component
 
-Test connection: `./test/login.sh` (also shows ip ;p)
+Test connection: `./test/login.sh` (also shows bind ip ;p)
 
 To change password for 'glftpd' user: `GLFTPD_PASSWD="<Passw0rd>" ./docker-run.sh`
 
 ## Customizing
 
-Image tagged 'full' includes zs and bot component 
+There is also an image tagged 'full' available which includes zs and bot components, as it's build with `INSTALL_ZS=1` `INSTALL_BOT=1`.
 
-`docker run ghcr.io/silv3rr/docker-glftpd:full`
-
-_(build with `INSTALL_ZS=1` `INSTALL_BOT=1`)_
+Usage: `USE_FULL=1 ./docker-run.sh` or: `docker run ghcr.io/silv3rr/docker-glftpd:full`
 
 By using runtime environment variables glftpd can be configured, use a permanent userdb, change site storage and add components. It's also possible to edit gl and pzs-ng config files.
 
 Some changes require either the 'full' image or a local image build (and/or restarting container).
+
+You don't have to use any of the included scripts and stuff, the images work fine on their own. Also, see below if you prefer using [docker-compose](#docker-compose).
 
 ### Paths
 
@@ -45,11 +45,11 @@ All paths are relative to where ever you git cloned this repo and run docker fro
 
 ### Components
 
-ZS: adds pzs-ng. Configured by editing pzs-ng/zipscript/conf/zsconfig.h as usual. Needs  rebuild after changing zsconfig.h. Requires image build with `INSTALL_ZS=1`.
+**ZS**: adds pzs-ng. Configured by editing pzs-ng/zipscript/conf/zsconfig.h as usual. Needs  rebuild after changing zsconfig.h. Requires image build with `INSTALL_ZS=1`.
 
-BOT: adds optional sitebot which will listen on port 3333. Login using telnet and default user/pass `docker/EatSh1t`. Needs irc server set in glftpd/sitebot/eggdrop.conf. ngBot can be configured in pzs-ng/sitebot/ngBot.conf. Requires image build with `INSTALL_BOT=1`.
+**BOT**: adds optional sitebot which will listen on port 3333. Login using telnet and default user/pass `docker/EatSh1t`. Needs irc server set in glftpd/sitebot/eggdrop.conf. ngBot can be configured in pzs-ng/sitebot/ngBot.conf. Requires image build with `INSTALL_BOT=1`.
 
-WEB: a shitty web interface is included. Uses separate `docker-glftpd-web` image, see "Web" below for details.
+**WEB**: a shitty web interface is included. Uses separate `docker-glftpd-web` image, see "[Web](#web)" below for details.
 
 ## Run
 
@@ -59,11 +59,9 @@ Takes care of changing glftpd conf and docker runtime args for you. And if avail
 
 The script will check for a local image first and if it's not available it'll use the image from github registry instead. It will also try to setup as much stuff as possible. Like glftpd ip/port, adding mounts and if you enabled pzs-ng it will add required cfg to gl conf for you. It also sets up sitebot.
 
-The container name will be `glftpd` with same hostname and a `web` container. Both use the 'shit' network. By default container gets removed when stopped.
+The container name will be `glftpd` with same hostname and a `glftpd-web` container using `web` as hostname. Both use the 'shit' network. By default container gets removed when stopped.
 
-For all available runtime options see comments inside docker-run.sh.
-
-See below if you prefer using docker-compose.
+For all available runtime options see comments inside [docker-run.sh](docker-run.sh).
 
 ### Example
 
@@ -88,7 +86,7 @@ The image name will be tagged `glftpd:latest`. If you enabled the web interface,
 
 Updating glftpd: when there's a new glftpd version out come December, change `GLFTPD_URL` and `GLFTPD_HASH` in docker-build.sh and rerun script.
 
-For all available build args, see comments inside docker-build.sh.
+For all available build args, see comments inside [docker-build.sh](docker-build.sh).
 
 ### Example
 
@@ -121,14 +119,14 @@ Cutting-edge tech used:
 
 ### Screenshots
 
+| |
+|-|
 | _Main page💩_ |
-|---------------:
-|[![shit](docs/shit.png)](shit.png)
-
-
+| ![shit](docs/shit.png "Main page") |
+| |
 | _Terminal modal showing bot_ |
-|------------------------------:
-| [![bot](docs/bot.png)](bot.png)
+| ![bot](docs/bot.png "Terminal modal showing bot") |
+
 
 ## Contents
 
@@ -169,13 +167,11 @@ Cutting-edge tech used:
 - docker-run.sh
     - changes configs and runs container
     - runs `docker run --rm --detach --name glftpd --hostname glftpd --publish 1337:1337 --workdir /glftpd glftpd:latest` (+ any --options)
-- bin
-    - hashgen.c: generates hash for glftpd/etc/passwd
-    - passwd.sh
-- test
-    - ls.sh: list ftp using lftp
-    - mkdir.sh \<dir\>
-    - login.sh
+- bin/hashgen.c: generates hash for glftpd/etc/passwd
+- bin/passwd.sh
+- test/ls.sh: list ftp using lftp
+- test/mkdir.sh `<dir>`
+- test/login.sh
 
 ## Issues
 
@@ -184,4 +180,4 @@ Cutting-edge tech used:
 - will it run on windows/macos/k8s? no idea, probably.. try it. podman? probably not
 - hashgen doesnt work? try recompiling: `gcc -o hashgen hashgen.c -lcrypto -lcrypt`
 - the bot doesnt start? check owner/perms of sitebot files
-- other than that, just run `docker rm -rf glftpd` and start over
+- other than that, just run `docker rm -f glftpd` and start over
