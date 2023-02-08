@@ -15,6 +15,7 @@
 # GLFTPD_PASV_ADDR="<1.2.3.4>"      set passive <address>, add "1" for internal
 #                                   NAT e.g. "10.0.1.2 1"; needs GLFTPD_CONF=1
 # IRC_SERVERS="<irc.host.com:6667>" set bot irc server(s), use '\n' as delimiter
+# USE_FULL=1                        get/use 'docker-glftpd:full' image
 # FORCE=1                           remove any existing container first
 # ARGS+= " --any-other-flags "      add any other docker run options
 #
@@ -32,20 +33,27 @@ RM=1
 
 DOCKER_IMAGE="glftpd:latest"
 
-LOCAL_IMAGE=$(
-  docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE"
-)
-
-if [ -n "$LOCAL_IMAGE" ]; then
-  echo "Using local 'glftpd' image"
+if [ "${USE_FULL:-0}" -eq 1 ]; then
+  echo "Using 'docker-glftpd:full' image from ghcr.io"
+  DOCKER_IMAGE="ghcr.io/silv3rr/docker-glftpd:full"
 else
-  FULL_IMAGE=$(
-    docker image ls --format='{{.Repository}}' --filter reference="ghcr.io/silv3rr/docker-glftpd:full"
+  LOCAL_IMAGE=$(
+    docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE"
   )
-  if [ -z "$FULL_IMAGE" ]; then
-    echo "Pulling 'docker-glftpd' image from ghcr.io"
-    DOCKER_IMAGE="ghcr.io/silv3rr/docker-glftpd:latest"
-    docker pull $DOCKER_IMAGE
+  if [ -n "$LOCAL_IMAGE" ]; then
+    echo "Using local 'glftpd' image"
+  else
+    FULL_IMAGE=$(
+      docker image ls --format='{{.Repository}}' --filter reference="ghcr.io/silv3rr/docker-glftpd:full"
+    )
+    if [ -n "$FULL_IMAGE" ]; then
+      echo "Using 'docker-glftpd:full' image from ghcr.io"
+      DOCKER_IMAGE="ghcr.io/silv3rr/docker-glftpd:full"
+    else
+      echo "Pulling 'docker-glftpd' image from ghcr.io"
+      DOCKER_IMAGE="ghcr.io/silv3rr/docker-glftpd:latest"
+      docker pull $DOCKER_IMAGE
+    fi
   fi
 fi
 
@@ -191,11 +199,14 @@ fi
 
 if [ "${FORCE:-0}" -eq 1 ]; then
   echo "Making sure existing container(s) are removed first..."
-  docker rm -f -v "glftpd" 2>/dev/null
-  docker rm -f -v "glftpd-web" 2>/dev/null
+  for i in glftpd glftpd-web ghcr.io/silv3rr/docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:full ghcr.io/silv3rr/docker-glftpd-web:latest; do
+    if docker ps --format '{{.Image}} {{.Names}}' | grep -Eiq "^(${i}| ${i}$)"; then
+      echo docker rm -f -v "$i" 2>/dev/null
+    fi
+  done
 fi
 
-# get glftpd image and run docker with args
+# run docker with glftpd image and args
 
 if [ -n "$DOCKER_IMAGE" ]; then
   docker run \

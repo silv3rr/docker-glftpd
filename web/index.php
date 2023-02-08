@@ -166,7 +166,7 @@ if (!empty($_DOCKER_TEST)) {
             print_r('<pre class="out">TEST: print_r \$json :<br>' . PHP_EOL);
             print_r($json);
             print("<br>" . PHP_EOL);
-            $json = json_decode($json. true);
+            $json = json_decode($json, true);
             if (json_last_error() === 0) {
                 foreach ($json as $em) {
                     print("TEST: name=" .  $em->Names[0] . " id=" . $em->Id . PHP_EOL);
