@@ -8,7 +8,7 @@ $('#bsModal').on('show.bs.modal', function (event) {
         modal.find('iframe').attr("src", `/tinyfilemanager/tinyfilemanager.php?p=${webpath}&view=${showframe}`);
     }
     else if (showframe === '@glsite') {
-        modal.find('.modal-title').text('Browsr Glftpd Site');
+        modal.find('.modal-title').text('Browse Glftpd Site');
         modal.find('iframe').attr("src", `/tinyfilemanager/tinyfilemanager.php?p=${webpath}/site`);
     }
     else if (showframe === '@filemanager') {
