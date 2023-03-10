@@ -4,7 +4,7 @@
 
 Dockerized [glftpd](https://glftpd.io)
 
-Optionally add [pzs-ng](https://pzs-ng.eu) and included [Web GUI](#web)
+Optionally adds [pzs-ng](https://pzs-ng.eu) and included [Web GUI](#web)
 
 View images in github container registry: <https://github.com/users/silv3rr/packages/container/package/docker-glftpd>
 
