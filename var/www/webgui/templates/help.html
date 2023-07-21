@@ -1,0 +1,288 @@
+<h1 id="docker-glftpd-v2">docker-glftpd (v2)</h1>
+<p>Dockerized <a href="https://glftpd.io">glftpd</a> for all</p>
+<p>Optionally adds <a href="https://pzs-ng.eu">pzs-ng</a> and included <a href="#web-gui">web-gui</a></p>
+<p>GitHub container registry: <a href="https://github.com/users/silv3rr/packages/container/package/docker-glftpd">docker-glftpd</a></p>
+<h2 id="quick-start">Quick Start</h2>
+<p>Usage: <code>docker run ghcr.io/silv3rr/docker-glftpd</code></p>
+<p>Without changing anything, this gets a temp ftp up and running. Good for testing.</p>
+<p>It uses these default settings:</p>
+<ul>
+<li>listen port is 1337</li>
+<li>ftp login: glftpd/glftpd, internal ip ranges allowed</li>
+<li>no permanent config, udb or storage</li>
+<li>does not include zs and bot component</li>
+</ul>
+<p>Test connection: <code>./test/login.sh</code> (also shows bind ip ;p)</p>
+<p>Change password for ‘glftpd’ user: <code>GLFTPD_PASSWD="MyPassw0rd" ./docker-run.sh</code></p>
+<h2 id="customizing">Customizing</h2>
+<p>Adding zipscript, bot and webgui components and permanent configuration using docker build/run</p>
+<p>Some changes may first require either switching to the ‘full’ image, a local image build or need a container restart to activate.</p>
+<p>Also, you don’t have to use any of the included scripts and stuff, the images work fine on their own too (bind mount your config files).</p>
+<p>See below if you prefer using <a href="#docker-compose">docker-compose</a></p>
+<h3 id="images">Images</h3>
+<h4 id="glftpd">glftpd</h4>
+<p>Basic setup</p>
+<ul>
+<li>ghcr.io/silv3rr/docker-glftpd:latest</li>
+<li>size: ~125mb (multi stage with conditionals)</li>
+<li>base: debian 11 slim, x64 only</li>
+<li>init: xinetd starts glftpd</li>
+<li>logs: xinetd, syslog and bot’s partyline goto stdout view logs with <code>docker logs glftpd</code></li>
+</ul>
+<p>Full image</p>
+<ul>
+<li>ghcr.io/silv3rr/docker-glftpd:full</li>
+<li>includes zs and bot components, as it’s build with <code>INSTALL_ZS=1</code> <code>INSTALL_BOT=1</code></li>
+<li>run: <code>USE_FULL=1 ./docker-run.sh</code> or manually: <code>docker run ghcr.io/silv3rr/docker-glftpd:full</code></li>
+</ul>
+<h4 id="webgui">webgui</h4>
+<ul>
+<li>ghcr.io/silv3rr/docker-glftpd-web:latest</li>
+<li>size: ~50mb</li>
+<li>base: latest alpine</li>
+<li>webserver: nginx, php8 fpm</li>
+<li>logs: nginx logs to stderr/stdout view logs with <code>docker logs glftpd-web</code></li>
+</ul>
+<p>A shitty web interface is included as a bonus.. it’s quite the prize. Starts automatically when running <code>docker-run.sh</code> and can be used to manage glftpd and bot in your browser. It uses a separate image. See “<a href="#web-gui">Web GUI</a>” below for usage details.</p>
+<h3 id="components">Components</h3>
+<p><strong>ZS</strong>: Adds pzs-ng. Configured by editing ‘etc/pzs-ng/zsconfig.h’ as usual (needs image rebuild to recompile after changing). Requires an image that’s build with <code>INSTALL_ZS=1</code>.</p>
+<p><strong>BOT</strong>: Adds optional sitebot which will listen on port 3333. Login to partyline using telnet and default user/pass <code>shit/EatSh1t</code>. Needs irc server set in ‘glftpd/sitebot/eggdrop.conf’ (use docker-run.sh) and <code>.+chan #yourchan</code> from partyline. ngBot can be changed in ‘glftpd/sitebot/pzs-ng/ngBot.conf’. Requires image build with <code>INSTALL_BOT=1</code>.</p>
+<h2 id="scripts">Scripts</h2>
+<h2 id="docker-run.sh"><code>docker-run.sh</code></h2>
+<p>Main script that takes care of creating/changing config files and docker runtime args for you. Then starts glftpd and web-gui container.</p>
+<p>Uses environment variables to change settings. Put them in front of script, e.g. <code>FORCE=1 GLFTPD_PASV_ADDR="1.2.3.4" ./docker-run.sh</code>.</p>
+<p>It sets up most common stuff:</p>
+<ul>
+<li>glftpd ip/ports/nat (or autodetect)</li>
+<li>if zs component is enabed: add required pzs-ng settings to glftpd.conf</li>
+<li>for sitebot component: eggdrop.conf and user files</li>
+<li>permanent userdb and ‘glftpd/site’ storage</li>
+<li>handle docker network and mounts</li>
+</ul>
+<p>Files in ‘etc’ are used as templates to create a new ‘glftpd’ dir with config files. Any changes persist until you remove that dir.</p>
+<p>The script uses bind mounts with relative paths, e.g.</p>
+<ul>
+<li>local ./glftpd/glftpd.conf on host gets mounted as /glftpd/glftpd.conf in container</li>
+<li>local ./glftpd/sitebot/eggdrop.conf on host gets mounted as /glftpd/sitebot/eggdrop.conf in container</li>
+<li>local ./glftpd/site on host gets mounted as /glftpd/site in container</li>
+</ul>
+<p>After config it will check for a local image to start first or if it’s not available it’ll get the image from github registry.</p>
+<p>The container name will be <code>glftpd</code> with same hostname, and a <code>glftpd-web</code> container using <code>web</code> as hostname. Both use the ‘shit’ network. By default containers gets removed when stopped.</p>
+<p>Runs <code>docker run --rm --detach --name glftpd --hostname glftpd --publish 1337:1337 --workdir /glftpd docker-glftpd:latest</code> (+ any options)</p>
+<p>For all available options, see comments inside <a href="docker-run.sh">docker-run.sh</a></p>
+<p><strong>Examples</strong>:</p>
+<pre><code># change gl ports:
+GLFTPD_CONF=1 GLFTPD_PORT=&quot;7113&quot; GLFTPD_PASV_PORTS=&quot;8888-9999&quot; ./docker-run.sh
+
+# permanent glftpd.conf, udb and storage:
+GLFTPD_CONF=1 GLFTPD_PERM_UDB=1 GLFTPD_SITE=1 ./docker-run.sh
+
+# or, add your own docker args:
+./docker-run.sh --network host --volume $(pwd)/site/mp3:/glftpd/site/mp3:rw --volume $(pwd)/site/xxx:/glftpd/site/xxx:rw</code></pre>
+<h2 id="docker-build.sh"><code>docker-build.sh</code></h2>
+<p>Wrapper script to (re)build images that can be used for local images besides the prebuild images from github registry.</p>
+<p>Docker downloads glftpd and (if enabled) zs/bot component. It puts them into image with init &amp; startup script and then builds it: <code>docker build ./docker-run.sh --cache-from docker-glftpd:2.13 --tag docker-glftpd:&lt;VERSION&gt; --tag docker-glftpd:latest</code> (+ any build-args).</p>
+<p>The image name will be tagged <code>glftpd:latest</code>. If you enabled the web interface, a <code>docker-glftpd-web:latest</code> image is also build.</p>
+<p>Options work the same as docker-run script.</p>
+<p>For all available build args, see comments inside <a href="docker-build.sh">docker-build.sh</a>.</p>
+<p><strong>Examples</strong>:</p>
+<pre><code># build with web interface, pzs-ng and bot:
+INSTALL_WEBGUI=1 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh; ./docker-run.sh</code></pre>
+<p>To update glftpd when there’s a new glftpd version out come December, change <code>GLFTPD_URL</code> and <code>GLFTPD_SHA</code> in docker-build.sh and rerun script.</p>
+<h2 id="web-gui">Web GUI</h2>
+<p>Use <code>docker run ghcr.io/silv3rr/docker-glftpd-web</code> (or local image: <code>docker-glftpd-web</code>)</p>
+<p>Open url: https://your.ip:4444 and login: <code>shit/EatSh1t</code> (basic web auth).</p>
+<p>It shows status, stops/starts glftpd container and can be used to view logs, edit config files and browse site. Also has a browser terminal that displays gl_spy, useredit and bot partyline (using websockets).</p>
+<p>Make sure your source ip is whitelisted and you’re using the correct user/pass. Default is <code>allow</code> all private ip ranges. To change edit etc/nginx/http.d/webgui.conf and rebuild image.</p>
+<p>Cutting-edge tech used:</p>
+<ul>
+<li>PHP, some JQuery and Bootstrap4</li>
+<li>Filemanager: <a href="https://tinyfilemanager.github.io/">tinyfilemanager</a></li>
+<li>Web Terminal: <a href="https://github.com/sorenisanerd/gotty">GoTTY</a></li>
+<li>pyspy (flask)</li>
+</ul>
+<h3 id="screenshots">Screenshots</h3>
+<table>
+<tbody>
+<tr class="odd">
+<td><em>Main page</em></td>
+</tr>
+<tr class="even">
+<td><img src="docs/shit.png" title="Main page" alt="shit" /></td>
+</tr>
+<tr class="odd">
+<td></td>
+</tr>
+<tr class="even">
+<td><em>Terminal modal showing bot</em></td>
+</tr>
+<tr class="odd">
+<td><img src="docs/bot.png" title="Terminal modal showing bot" alt="bot" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="docker-compose">Docker Compose</h2>
+<p>What about docker-compose you ask? Sure, ‘docker-compose.yml’ is included too: <code>docker compose up --detach</code></p>
+<p>To build local images instead: <code>docker compose --profile local up --build local-glftpd local-web --detach</code></p>
+<p>Edit .yml to set build <code>args</code> and options under <code>environment</code>. Also you’ll have to manage config files yourself instead of having docker-run.sh doing it for you.</p>
+<h2 id="files">Files</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Owner, mode</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">docker-build.sh</td>
+<td style="text-align: left;">(re)build images</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">docker-run.sh</td>
+<td style="text-align: left;">start container, manage config</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">etc/.gotty</td>
+<td style="text-align: left;">browser terminal cfg</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">etc/xinetd.conf</td>
+<td style="text-align: left;">init</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">etc/xinetd.d/glftpd</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bin/hashgen.c</td>
+<td style="text-align: left;">generates gl passwd hash</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bin/passwd.sh</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">test/ls.sh</td>
+<td style="text-align: left;">list ftp using lftp</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">test/mkdir.sh</td>
+<td style="text-align: left;">creates <code>&lt;dir&gt;</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">test/login.sh</td>
+<td style="text-align: left;">login/idle</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Templates</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">etc/glftpd/glftpd.conf.gz</td>
+<td style="text-align: left;">glftpd/glftpd.conf</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">etc/glftpd/udb-skel.tar.gz</td>
+<td style="text-align: left;">glftpd/etc/passwd</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">glftpd/etc/ftp-data/{users,groups}</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">etc/eggdrop.conf</td>
+<td style="text-align: left;">glftpd/eggdrop.conf</td>
+<td style="text-align: left;">999, 660</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">etc/pzs-ng/ngBot-skel.tar.gz</td>
+<td style="text-align: left;">glftpd/sitebot/pzs-ng/</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">etc/pzs-ng/ngBot.conf.gz</td>
+<td style="text-align: left;">glftpd/sitebot/pzs-ng/ngBot.conf</td>
+<td style="text-align: left;">999, XXX</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Generated</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">userfile created by docker</td>
+<td style="text-align: left;">glftpd/sitebot/LamestBot.user</td>
+<td style="text-align: left;">999, 660</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">chanfile created by eggdrop</td>
+<td style="text-align: left;">glftpd/sitebot/LamestBot.chan</td>
+<td style="text-align: left;">999, XXX</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">etc/pzs-ng/zsconfig.h</td>
+<td style="text-align: left;">copied by docker, changes need rebuild</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">glftpd/site</td>
+<td style="text-align: left;">container dir (default) or bind mount</td>
+<td style="text-align: left;">XXX, 777</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="issues">Issues</h2>
+<ul>
+<li>why would you use this? uhh i dunno, cuz ur too stupid to setup gl urself?! :P</li>
+<li>why does the web interface suck? .. the name didnt give it away?!</li>
+<li>will it run on windows/macos/k8s? no idea, probably.. try it. podman? probably not</li>
+<li>hashgen doesnt work? try recompiling: <code>gcc -o hashgen hashgen.c -lcrypto -lcrypt</code></li>
+<li>the bot doesnt start? check owner/perms of sitebot files</li>
+<li>other than that, just <code>rm -rf ./glftpd; docker rm -f glftpd</code> to start over</li>
+</ul>
