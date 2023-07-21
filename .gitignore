@@ -1,7 +1,9 @@
-tmp/
-glftpd/glftpd.conf
-glftpd/sitebot/eggdrop.conf
-glftpd/sitebot/LamestBot.chan
-glftpd/sitebot/LamestBot.user
+archive/
+glftpd/
+var/www/webgui/glftpd/
+var/www/webgui/lib/fontawesome-free-6.1.2-web/
+.env
 *.bak
+*.crt
+*.key
 *.swp
