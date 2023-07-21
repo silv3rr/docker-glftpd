@@ -15,8 +15,7 @@ if [ -n "$1" ]; then
     echo "php not found, skipping"
   fi
   if [ -x ./hashgen ]; then
-    echo
-    echo
+    echo; echo
     echo "hashgen user glftpd:"
     ./hashgen glftpd "$1"
   else
