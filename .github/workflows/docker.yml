@@ -25,7 +25,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push image
         run: |
           docker tag glftpd:latest ghcr.io/silv3rr/docker-glftpd:latest
