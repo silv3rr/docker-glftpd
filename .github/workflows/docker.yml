@@ -15,6 +15,9 @@ jobs:
   docker-images:
     name: Build Docker images and push to repositories
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
