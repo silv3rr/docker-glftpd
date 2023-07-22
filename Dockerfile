@@ -118,6 +118,7 @@ ARG INSTALL_WEBGUI
 ARG GOTTY_URL
 ARG GOTTY_SHA
 LABEL org.opencontainers.image.source=https://github.com/silv3rr/docker-glftpd
+LABEL org.opencontainers.image.description="Dockerized glftpd"
 LABEL gl.zipscript.setup=$INSTALL_ZS
 LABEL gl.sitebot.setup=$INSTALL_BOT
 EXPOSE 1337/tcp

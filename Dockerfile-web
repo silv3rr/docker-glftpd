@@ -8,6 +8,7 @@ ARG WEBGUI_CERT
 ARG WEBGUI_PASSWORD
 FROM alpine:3.16
 LABEL org.opencontainers.image.source=https://github.com/silv3rr/docker-glftpd
+LABEL org.opencontainers.image.description="Web-gui to manage glftpd"
 EXPOSE 443
 WORKDIR /app
 COPY --chown=0:0 etc/nginx /etc/nginx
@@ -27,6 +28,7 @@ RUN test -n "$http_proxy" && { \
       php8-session \
       php8-ftp \
       php8-curl \
+      
       php8-json \
       php8-ctype \
       apache2-utils \
