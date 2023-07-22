@@ -76,28 +76,28 @@ echo "----------------------------------------------"
 
 # select image
 
-if [ "${USE_FULL:-0}" -eq 1 ]; then
-  echo "* Using image '${DOCKER_IMAGE_GLFTPD}' from ghcr.io"
-  DOCKER_IMAGE_GLFTPD="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}"
+LOCAL_IMAGE=$(
+  docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE_GLFTPD"
+)
+LOCAL_FULL_IMAGE=$(
+  docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
+)
+if [ -n "$LOCAL_IMAGE" ] && [ "${USE_FULL:-0}" -eq 0 ]; then
+  echo "* Found local docker image"
+elif [ -n "$LOCAL_FULL_IMAGE" ]; then
+  DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
+  echo "* Using full docker image ${LOCAL_FULL_IMAGE:-""})"
 else
-  LOCAL_IMAGE=$(
-    docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE_GLFTPD"
+  # check if we already have 'full' tagged image, then keep using it
+  REGISTRY_FULL_IMAGE=$(
+    docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
   )
-  if [ -n "$LOCAL_IMAGE" ]; then
-    echo "* Found local docker image"
-  else
-    FULL_IMAGE=$(
-      docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}"
-    )
-    if [ -n "$FULL_IMAGE" ]; then
-      echo "* Using image '${DOCKER_IMAGE_GLFTPD/%:latest/:full}' from ghcr.io"
-      DOCKER_IMAGE_GLFTPD="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-    else
-      echo "* Pulling image '${DOCKER_IMAGE_GLFTPD}' from ghcr.io"
-      DOCKER_IMAGE_GLFTPD="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}"
-      docker pull $DOCKER_IMAGE_GLFTPD
-    fi
+  if [ -n "$REGISTY_FULL_IMAGE" ] || [ "${USE_FULL:-0}" -eq 1 ]; then
+    DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
   fi
+  echo "* Pulling image '${DOCKER_IMAGE_GLFTPD}' from ghcr.io"
+  DOCKER_IMAGE_GLFTPD="${DOCKER_REGISTRY}/$DOCKER_IMAGE_GLFTPD"
+  docker pull "$DOCKER_IMAGE_GLFTPD"
 fi
 
 # set runtime docker args
