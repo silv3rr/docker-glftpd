@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Build images
-        run: INSTALL_WEB=1 INSTALL_ZS=0 INSTALL_BOT=0 ./docker-build.sh
+        run: INSTALL_WEBGUI=1 INSTALL_ZS=0 INSTALL_BOT=0 ./docker-build.sh
       - name: Login to Github Container Registry
         uses: docker/login-action@v2
         with:
@@ -36,5 +36,5 @@ jobs:
         run: INSTALL_WEB=0 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh
       - name: Push full image
         run: |
-          docker tag glftpd:latest ghcr.io/silv3rr/docker-glftpd:full
+          docker tag docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:full
           docker push ghcr.io/silv3rr/docker-glftpd:full
