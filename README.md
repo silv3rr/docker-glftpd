@@ -184,7 +184,7 @@ Cutting-edge tech used:
 - PHP, some JQuery and Bootstrap4
 - Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/)
 - Web Terminal: [GoTTY](https://github.com/sorenisanerd/gotty)
-- pyspy (flask)
+- [pyspy](https://github.com/silv3rr/pyspy) (flask)
 
 ## Files
 
