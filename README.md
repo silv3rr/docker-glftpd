@@ -11,7 +11,8 @@ GitHub container registry: [docker-glftpd](https://github.com/users/silv3rr/pack
 ## Screenshots
 
 > _Web GUI's main page (optional component)_
-> ![main](docs/glcc.png "Main page")
+
+![main](docs/glcc.png "Main page")
 
 See "[Web GUI](#web-gui)" below
 
@@ -177,7 +178,8 @@ Optional component that that shows online users, status and stops/starts glftpd 
 Make sure your source ip is whitelisted and you're using the correct user/pass. Default is `allow` all private ip ranges. To change edit etc/nginx/http.d/webgui.conf and rebuild image.
 
 > _Terminal modal showing bot_
-> ![bot](docs/bot.png "Terminal modal showing bot")
+
+![bot](docs/bot.png "Terminal modal showing bot")
 
 Cutting-edge tech used:
 
