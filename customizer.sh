@@ -78,7 +78,7 @@ if [ "${GLFTPD_CONF:-0}" -eq 1 ]; then
     GLFTPD_PASV_PORTS="5000-5100"
     echo "WARNING: 'pasv_ports' are set incorrectly \"$GLFTPD_PASV_PORTS\", using defaults \"$GLFTPD_PASV_PORTS\"..."
   fi
-  if [ -n "$GLFTPD_PASV_ADDR" ] && ! [[ $GLFTPD_PASV_ADDR =~ $^[0-9\.]{7,} ]]; then
+  if [ -n "$GLFTPD_PASV_ADDR" ] && ! [[ $GLFTPD_PASV_ADDR =~ ^[0-9\.]{7,}$ ]]; then
     echo "WARNING: pasv_addr incorrectly set \"$GLFTPD_PASV_ADDR\", using autodetected \"$IP_ADDR\" ${NAT:+(NAT)}..."
   fi
   if ! grep -Eq "^pasv_addr.*" glftpd/glftpd.conf; then
