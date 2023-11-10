@@ -1,5 +1,5 @@
-archive/
-glftpd/
+/glftpd/
+/archive/
 var/www/webgui/glftpd/
 var/www/webgui/lib/fontawesome-free-6.1.2-web/
 .env
