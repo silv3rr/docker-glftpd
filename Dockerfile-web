@@ -28,7 +28,6 @@ RUN test -n "$http_proxy" && { \
       php8-session \
       php8-ftp \
       php8-curl \
-      
       php8-json \
       php8-ctype \
       apache2-utils \

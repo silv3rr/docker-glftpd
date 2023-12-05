@@ -37,6 +37,7 @@ echo "----------------------------------------------"
 
 if [ "${BUILD_GL:-1}" -eq 1 ]; then
   echo "Build image: 'docker-glftpd'"
+  echo "( ignore errors about cache )"
   docker build \
     $ARGS \
     --cache-from "docker-glftpd:latest" \

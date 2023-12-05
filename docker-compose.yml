@@ -23,6 +23,10 @@ services:
       # - "3333:3333"
       # uncomment for pasv ports
       # - "5000-6000:5000-6000"
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
     container_name: glftpd
     hostname: glftpd
     # environment:
@@ -36,6 +40,10 @@ services:
       - ./glftpd/site:/app/glftpd/site
     ports: &web_ports
       - 4444:443
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
     container_name: glftpd-web
     hostname: glftpd-web
 
@@ -60,6 +68,10 @@ services:
     image: docker-glftpd:latest
     volumes: *glftpd_volumes
     ports: *glftpd_ports
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
     container_name: glftpd
     hostname: glftpd
     # environment:
@@ -76,6 +88,10 @@ services:
     image: docker-glftpd-web:latest
     volumes: *web_volumes
     ports: *web_ports
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
     container_name: glftpd-web
     hostname: glftpd-web
     # environment:

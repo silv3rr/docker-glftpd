@@ -47,13 +47,6 @@ if (el && p == "") {
         .then(text => {
             div_users.innerHTML = text  ;
         })
-        fetch(encodeURI(`${url_users}?${spy_params}`), {
-            method: "GET",
-        })
-        .then(response => response.text())
-        .then(text => {
-            div_users.innerHTML = text  ;
-        })
         fetch(encodeURI(url_totals), {
             method: "GET",
         })

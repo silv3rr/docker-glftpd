@@ -83,7 +83,7 @@ LOCAL_FULL_IMAGE=$(
   docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
 )
 if [ -n "$LOCAL_IMAGE" ] && [ "${USE_FULL:-0}" -eq 0 ]; then
-  echo "* Found local docker image"
+  echo "* Found local 'docker-glftpd' image"
 elif [ -n "$LOCAL_FULL_IMAGE" ]; then
   DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
   echo "* Using full docker image ${LOCAL_FULL_IMAGE:-""})"
@@ -92,7 +92,7 @@ else
   REGISTRY_FULL_IMAGE=$(
     docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
   )
-  if [ -n "$REGISTY_FULL_IMAGE" ] || [ "${USE_FULL:-0}" -eq 1 ]; then
+  if [ -n "$REGISTRY_FULL_IMAGE" ] || [ "${USE_FULL:-0}" -eq 1 ]; then
     DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
   fi
   echo "* Pulling image '${DOCKER_IMAGE_GLFTPD}' from ghcr.io"
@@ -101,6 +101,10 @@ else
 fi
 
 # set runtime docker args
+
+# set max open files to prevent high cpu usage by some procs
+GLFTPD_ARGS+=" --ulimit nofile=1024:1024 "
+WEBGUI_ARGS+=" --ulimit nofile=1024:1024 "
 
 if [ "${GLFTPD_CONF:-0}" -eq 1 ] || [ "${ZS_STATUS:-0}" -eq 1 ]; then
   GLFTPD_ARGS+=" --mount type=bind,src=$(pwd)/glftpd/glftpd.conf,dst=/glftpd/glftpd.conf "
@@ -158,7 +162,7 @@ docker ps -a --format '{{.ID}} {{.Image}} {{.Names}}'| grep -E "$REGEX" | while 
     printf "* Removing existing container '%s'... " "$i"
     docker rm -f -v "$CONTAINER" 2>/dev/null
   else
-    echo "WARNING: container '$i' already exists, rerun with FORCE=1 to remove"
+    echo "WARNING: container '$i' already exists, to remove run 'FORCE=1 ./docker-run.sh'"
   fi
 done
 
