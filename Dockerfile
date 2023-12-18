@@ -133,7 +133,7 @@ COPY --chown=0:0 etc/pywho.conf /glftpd/bin/pywho.conf
 COPY --chown=0:0 bin/spy /glftpd/bin/spy
 COPY --chown=0:0 etc/spy.conf /glftpd/bin/spy.conf
 COPY --chown=0:0 var/www/pyspy/ /glftpd/bin
-COPY --chown=0:0 --from=build /build /glftpd
+COPY --chown=0:0 --from=build /glftpd /glftpd
 COPY --chown=0:0 --from=bot / /
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=SC2016,SC2028,DL3008
