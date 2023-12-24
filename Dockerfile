@@ -65,6 +65,8 @@ RUN if [ "${INSTALL_ZS:-0}" -eq 1 ]; then \
       mkdir -p /glftpd/sitebot/pzs-ng/themes && \
       cp -R ngBot.* plugins themes modules /glftpd/sitebot/pzs-ng/ && \
       cp ngBot.conf.dist /glftpd/sitebot/pzs-ng/ngBot.conf ); \
+  else \
+    mkdir /glftpd; \
   fi
 
 # eggdrop (optional)
