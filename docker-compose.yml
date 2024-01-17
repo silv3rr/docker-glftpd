@@ -15,7 +15,7 @@ services:
       - ./glftpd/glftpd.conf:/glftpd/glftpd.conf
       - ./glftpd/etc:/glftpd/etc
       - ./glftpd/ftp-data/users:/glftpd/ftp-data/users
-      - ./glftpd/ftp-data/users:/glftpd/ftp-data/groups
+      - ./glftpd/ftp-data/groups:/groups/ftp-data/groups
       - ./glftpd/sitebot:/glftpd/sitebot
     ports: &glftpd_ports
       - "1337:1337"
