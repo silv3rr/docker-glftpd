@@ -14,7 +14,7 @@ GitHub container registry: [docker-glftpd](https://github.com/users/silv3rr/pack
 
 ![main](docs/glcc.png "Main page")
 
-See "[Web GUI](#web-gui)" below
+See "[Web GUI](#web-gui)" below or it's [own repo](https://github.com/silv3rr/glftpd-webui)
 
 ## Quick Start
 
@@ -176,6 +176,8 @@ Open url: https://your.ip:4444 and login: `shit/EatSh1t`  (basic web auth).
 Optional component that that shows online users, status and stops/starts glftpd container. Can also be used to view logs, edit config files and browse site. And has a browser terminal that displays gl_spy, useredit and bot partyline (using websockets).
 
 Make sure your source ip is whitelisted and you're using the correct user/pass. Default is `allow` all private ip ranges. To change edit etc/nginx/http.d/webgui.conf and rebuild image.
+
+Now has it's [own repo](https://github.com/silv3rr/glftpd-webui)
 
 > _Terminal modal showing bot_
 
