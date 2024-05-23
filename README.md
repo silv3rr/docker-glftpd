@@ -189,6 +189,7 @@ Cutting-edge tech used:
 - Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/)
 - Web Terminal: [GoTTY](https://github.com/sorenisanerd/gotty)
 - [pyspy](https://github.com/silv3rr/pyspy) (flask)
+- [glftpd-webui](https://github.com/silv3rr/webui)
 
 ## Files
 
