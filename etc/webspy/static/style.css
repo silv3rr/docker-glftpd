@@ -1,0 +1,413 @@
+body {
+    /*
+    background-color: black;
+    background-color: whitesmoke;
+    color: white;
+    */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--font-color);
+}
+table {
+    width: auto;
+    border-color: gray;
+    border-width: 1px;
+    border-style: solid;
+}
+thead {
+    background-color: lightblue;
+}
+thead th {
+    font-weight: normal;
+}
+th {
+    text-align: left;
+    padding-left: 10px;
+}
+td:nth-child(1) {
+    font-weight: 600;
+    padding-left: 10px;
+}
+td:nth-child(2) {
+    width: 350px;
+}
+td {
+    width: 100px;
+}
+a:link, a:visited, a:hover, a:active {
+    color: #1171cf;
+}
+.top {
+    width: 100%;
+    height: 50px;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: lightblue;
+    border-width: 3px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-bottom: 15px;
+    text-align: center;
+    text-align-last: center;
+}
+.top #title {
+    font-size: 2em;
+    font-weight: 600;
+    position: absolute;
+}
+.top #version {
+    color: gray;
+    font-size: 0.8em;
+    float: right;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 10px;
+    padding-right: 10px;
+    text-align-last: right;
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+    /* max-width: 45ch; */
+    white-space: nowrap;
+    /* overflow-wrap: break-word; */
+    max-width: 25%;
+}
+.settings {
+    width: auto;
+    position: sticky;
+    float: left;
+    margin-right: 5%;
+}
+.settings table {
+    width: max-content;
+    height: max-content;
+    border-color: gray;
+    border-style: double;
+    border-width: 4px;
+}
+.settings td {
+    width: max-content;
+    height: max-content;
+    font-weight: 500;
+    padding-left: 15px;
+    padding-right: 90px;
+    padding-top: 6px;
+    padding-bottom: 4px;
+    font-size: 0.9em;
+    line-height: 25px;
+}
+.settings thead {
+    background-color: lightgray;
+
+}
+.settings button {
+    cursor: pointer;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 26px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 6px;
+    border-color: darkgray;
+    box-shadow: 1px 1px 0px 1px lightgray;
+}
+.settings select {
+    cursor: pointer;
+    color: black;
+    padding: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 28px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: darkgray;
+    border-radius: 6px;
+}
+.settings input {
+    height: 20px;
+    margin-bottom: 10px;
+}
+.settings form {
+    display: inline;
+}
+.totals {
+    display: inline;
+    width: auto;
+}
+.totals table {
+    border-color: black;
+    border-style: double;
+    border-width: 4px;
+}
+.totals thead {
+    background-color :lightskyblue;
+}
+.totals #date {
+    margin-left: 100%;
+}
+#spy_api_result {
+    display: none;
+    color: white;
+    font-size: 1em;
+    opacity: 0.7;
+    position: fixed;
+    background: black;
+    margin-left: 35%;
+    padding: 30px;
+    padding-left: 50px;
+    padding-right: 50px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 6px;
+    border-color: gray;
+}
+.who {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.who #show_info {
+    display: inline-table;
+    float:  right;
+    width: auto;
+    /*
+    cursor: default;
+    color: black;
+    font-weight: normal;
+    font-size: 0.9em;
+    background-color: #e3e3e3;
+    border-style: solid;
+    border-width: 2px;
+    border-color: darkgray;
+    border-radius: 6px;
+    */
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+}
+.who #bartext {
+    display: table;
+    width: 100%;
+    /* color: black; */
+    /* font-weight: bold; */
+    /* font-size: 1.0em; */
+    font-weight: 600;
+    margin-top: 20px;
+    margin-left: 0px;
+    margin-right: 5px;
+    margin-bottom: 15px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-style: solid;
+    border-color: lightgray;
+    border-width: 0px;
+    border-bottom-width: 1px;
+    background-color:  #eaeaea;
+}
+.who img {
+    float: left;
+    margin-right: 5px;
+    height: 25px;
+}
+.row {
+    height: auto;
+    width: auto;
+    column-count: 1;
+    column-gap: 0%;
+    column-span: none;
+    margin-bottom: 10px;
+}
+.users {
+    column-count: 2;
+    column-gap: 0%;
+    column-span: none;
+}
+.users table {
+    margin-bottom: 15px;
+}
+.icons {
+    float: right;
+    padding-right: 10px;
+
+}
+.icons button {
+    height: 24px;
+    border-radius: 5px;
+    margin-left: 2px;
+}
+.icons img {
+    height: 16px;
+}
+.icons #index {
+    display: inline-block;
+    cursor: default;
+    color: gray;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 6px;
+    padding-left: 2px;
+    padding-right: 1px;
+    margin-right: 3px;
+}
+.bold, #bold {
+    font-weight: bold;
+}
+.underline {
+    text-decoration: underline;
+}
+#normal {
+    font-weight: normal;
+}
+#bolder {
+    font-weight: 600;
+}
+/*
+.button-group {
+    border: 3px;
+    border-style: solid;
+    border-color: lightgray;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 3px;
+}
+*/
+
+/*  dark theme
+    https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8 */
+
+:root {
+    --text-color-normal: #0a244d;
+    --text-color-light: #8cabd9;
+
+    --primary-color: #302AE6;
+    --secondary-color: #536390;
+    --font-color: #424242;
+    /* --bg-color: #fff; */
+    --bg-color: whitesmoke;
+    --heading-color: #292922;
+}
+[data-theme='dark'] {
+    --text-color-normal: hsl(210, 10%, 62%);
+    --text-color-light: hsl(210, 15%, 35%);
+    --text-color-richer: hsl(210, 50%, 72%);
+    --text-color-highlight: hsl(25, 70%, 45%);
+
+    --primary-color: #9A97F3;
+    --secondary-color: #818cab;
+    /* --font-color: #e1e1ff; */
+    --font-color: #929292;
+    --bg-color: #161625;
+    --heading-color: #818cab;
+}
+[data-theme='dark'] .settings thead {
+    color: lightgray
+}
+[data-theme='dark'] .settings th {
+    background-color: #303030;
+}
+[data-theme='dark'] .totals table {
+    border-color: darkgray;
+}
+[data-theme='dark'] .totals th {
+    background-color: navy;
+}
+[data-theme='dark'] th {
+    background-color: rgb(33, 33, 153);
+}
+[data-theme='dark'] button {
+    background-color: #818cab;
+    border-color: lightgray;
+    border-radius: 5px;
+}
+[data-theme='dark'] select {
+    background-color: #818cab;
+    border-radius: 5px;
+}
+[data-theme='dark'] input {
+    background-color: #818cab;
+    border-radius: 5px;
+}
+[data-theme='dark'] button:hover {
+    border-color: darkcyan;
+    background-color: lightskyblue;
+}
+[data-theme='dark'] .who #show_info {
+    color: black;
+    border-color: whitesmoke;
+    background-color: #818cab;
+}
+[data-theme='dark'] .who #bartext {
+    color: black;
+    border-color: darkgray;
+    background-color: gray;
+}
+/*
+[data-theme='dark'] label {
+    background-color: #818cab;
+    border-color: lightgray
+}
+[data-theme='dark'] label:hover {
+    border-color: darkcyan;
+   background-color: lightskyblue;
+}
+.theme-switch-wrapper {
+    display:inline;
+    align-items: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-left: 10px;
+    font-size: 1rem;
+}
+*/
+.theme-switch {
+    display: inline-block;
+    height: 20px;
+    position: relative;
+    width: 38px;
+    margin-bottom: -1px;
+}
+
+.theme-switch input {
+    display:none;
+}
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0px;
+    transition: .4s;
+    margin-bottom:-4px;
+}
+.slider:before {
+    background-color: #fff;
+    bottom: 0px;
+    content: "";
+    height: 16px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 16px;
+    top: 4px;
+}
+input:checked + .slider {
+    background-color: #66bb6a;
+    margin-bottom:-4px;
+}
+input:checked + .slider:before {
+    transform: translateX(16px);
+}
+.slider.round {
+    border-radius: 17px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}
