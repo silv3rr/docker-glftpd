@@ -1,22 +1,30 @@
 #!/bin/bash
 
-################################## ################################   ####  # ##
-# >> DOCKER-GLFTPD-CUSTOMIZER-V2
-################################## ################################   ####  # ##
+echo "----------------------------------------------"
+echo "DOCKER-GLFTPD-CUSTOMIZER-V3"
+echo "----------------------------------------------"
+#       ,
+#     _/\
+#    (._.)  -- HI!
+#   (_____)
+#  (_______)
+#
 
 RESET=1
 
-cat <<'EOF'
-----------------------------------------------
-         DOCKER-GLFTPD-CUSTOMIZER-V2
-----------------------------------------------
-                      ,
-                    _/\
-                   (._.)  -- HI!
-                  (_____)
-                 (_______)
-----------------------------------------------
-EOF
+echo "* Adding customizations to config files"
+
+# cleanup any empty dirs from docker bind mounts
+
+for i in glftpd/glftpd.conf glftpd/sitebot/eggdrop.conf glftpd/sitebot/pzs-ng/ngBot.conf; do
+  if [ -d "$i" ]; then
+    rmdir "$i" 2>/dev/null || {
+      echo "WARNING: unable to cleanup \"$i\", which is a directory instead of a file"
+    }
+  fi
+done
+
+# create glftpd.conf
 
 if [ "${GLFTPD_CONF:-0}" -eq 1 ] || [ "${ZS_STATUS:-0}" -eq 1 ]; then
   test -s glftpd/glftpd.conf || {
@@ -24,23 +32,27 @@ if [ "${GLFTPD_CONF:-0}" -eq 1 ] || [ "${ZS_STATUS:-0}" -eq 1 ]; then
     mkdir -v -p glftpd
     gunzip -c -v etc/glftpd/glftpd.conf.gz >glftpd/glftpd.conf
   }
+  if ! grep -Eq '^(upload|download)' glftpd/glftpd.conf; then
+      echo "! Replacing invalid glftpd.conf with default file.."
+      gunzip -c -v etc/glftpd/glftpd.conf.gz >glftpd/glftpd.conf
+  fi
 fi
 
 # reset any customizations
 
-if [ "${RESET:-0}" -eq 1 ]; then    
-  if [ -s glftpd/glftpd.conf ]; then
+if [ "${RESET:-0}" -eq 1 ]; then
+  if [ -f glftpd/glftpd.conf ] && [ -s glftpd/glftpd.conf ]; then
     for i in '/^pasv_addr.*/d' '/^pasv_ports.*/d' '/### pzs-ng:start*/,/^### pzs-ng:end/d'; do
       sed -i "$i" glftpd/glftpd.conf
     done
   fi
-  if [ -w glftpd/sitebot/eggdrop.conf ]; then
+  if [ -f glftpd/sitebot/eggdrop.conf ] && [ -w glftpd/sitebot/eggdrop.conf ]; then
     DEFAULT_IRC_SERVERS="  you.need.to.change.this:6667\n  another.example.com:7000:password\n  [2001:db8:618:5c0:263::]:6669:password\n  ssl.example.net:+6697"
     sed -i '/^set servers *{/,/^}$/c\set servers {\n'"$DEFAULT_IRC_SERVERS"'\n}' glftpd/sitebot/eggdrop.conf 2>/dev/null
   fi
 fi
 
-# glftpd config
+# glftpd configuration
 
 if [ -n "$GLFTPD_PORT" ] && ! [[ $GLFTPD_PORT =~ ^[0-9]{1,5}$ ]]; then
   echo "WARNING: listen port incorrectly set \"$GLFTPD_PORT\", using default \"1337\"..."
@@ -48,8 +60,9 @@ if [ -n "$GLFTPD_PORT" ] && ! [[ $GLFTPD_PORT =~ ^[0-9]{1,5}$ ]]; then
 fi
 
 if [ "${ZS_STATUS:-0}" -eq 1 ]; then
-  if ! grep -Eq "^post_check.*/bin/zipscript-c" glftpd/glftpd.conf; then
-    cat <<-'_EOF_' >>glftpd/glftpd.conf
+  if [ -f glftpd/glftpd.conf ]; then
+    if ! grep -Eq "^post_check.*/bin/zipscript-c" glftpd/glftpd.conf; then
+      cat <<-'_EOF_' >>glftpd/glftpd.conf
 	### pzs-ng:start ###############################################################
 	calc_crc        *
 	post_check      /bin/zipscript-c *
@@ -65,6 +78,9 @@ if [ "${ZS_STATUS:-0}" -eq 1 ]; then
 	custom-audiosort        !8      *
 	### pzs-ng:end #################################################################
 _EOF_
+    fi
+  else
+    echo "WARNING: could not add pzs-ng settings to glftpd.conf"
   fi
 fi
 
@@ -79,7 +95,7 @@ if [ "${GLFTPD_CONF:-0}" -eq 1 ]; then
     echo "WARNING: 'pasv_ports' are set incorrectly \"$GLFTPD_PASV_PORTS\", using defaults \"$GLFTPD_PASV_PORTS\"..."
   fi
   if [ -n "$GLFTPD_PASV_ADDR" ] && ! [[ $GLFTPD_PASV_ADDR =~ ^[0-9\.]{7,}$ ]]; then
-    echo "WARNING: pasv_addr incorrectly set \"$GLFTPD_PASV_ADDR\", using autodetected \"$IP_ADDR\" ${NAT:+(NAT)}..."
+    echo "WARNING: 'pasv_addr' incorrectly set \"$GLFTPD_PASV_ADDR\", using autodetected \"$IP_ADDR\" ${NAT:+(NAT)}..."
   fi
   if ! grep -Eq "^pasv_addr.*" glftpd/glftpd.conf; then
     echo "pasv_addr ${GLFTPD_PASV_ADDR:-$IP_ADDR}${NAT:+ $NAT}" >>glftpd/glftpd.conf || \
@@ -94,17 +110,27 @@ if [ "${GLFTPD_CONF:-0}" -eq 1 ]; then
   fi
 fi
 
+# create userdb
+
 #if [ -n "$GLFTPD_PASSWD" ]; then
 #  bin/hashgen || gcc -o bin/hashgen bin/hashgen.c -lcrypto -lcrypt &&
-#    bin/hashgen glftpd "$GLFTPD_PASSWD" >>glftpd/etc/passwd ||
+#    bin/hashgen glftpd "$GLFTPD_PASSWD" >glftpd/etc/passwd ||
 #    echo "Failed to generate hash, password not changed "
 #fi
 
 if [ "${GLFTPD_PERM_UDB:-0}" -eq 1 ]; then
+  mkdir -v -p glftpd
   if [ ! -d glftpd/etc ] && [ ! -d glftpd/ftp-data/users ] && [ ! -d glftpd/ftp-data/groups ]; then
-    echo "* Creating permanent glftpd userdb in '$(pwd)/glftpd'..."
-    mkdir -v -p glftpd
-    tar -C glftpd -xvf etc/glftpd/userdb-skel.tar.gz || echo "WARNING: could not create empty udb"
+    echo "* Creating new permanent glftpd userdb in '$(pwd)/glftpd'..."
+    tar -C glftpd -xvf etc/glftpd/userdb-skel.tar.gz || echo "WARNING: could not create empty userdb"
+  else
+    echo "* Checking exising glftpd userdb in '$(pwd)/glftpd'..."
+    for i in etc ftp-data/users ftp-data/groups; do
+      find "glftpd/${i}"/* >/dev/null 2>&1 || {
+        echo "* create missing \"$i/*\""
+        tar -C glftpd --skip-old-files -xvf etc/glftpd/userdb-skel.tar.gz "$i" 2>&1
+      }
+    done
   fi
 fi
 
@@ -126,7 +152,7 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
   }
   test -s glftpd/sitebot/eggdrop.conf || {
     echo "* Create sitebot config..."
-    cp -n -v etc/eggdrop.conf glftpd/sitebot/eggdrop.conf
+    gunzip -c -v etc/eggdrop.conf.gz >glftpd/sitebot/eggdrop.conf
   }
   if [ ! -d glftpd/sitebot/pzs-ng ]; then
     echo "Setup ngBot..."
@@ -140,9 +166,9 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
   fi
   if [ -n "$IRC_SERVERS" ]; then
     for i in $IRC_SERVERS; do
-      if ! grep -q "$i" glftpd/sitebot/eggdrop.conf; then
+      if ! grep -iq "$i" glftpd/sitebot/eggdrop.conf; then
         sed -i '/^set servers *{/,/^}$/c\set servers {\n  '"${IRC_SERVERS// /\\n  }"'\n}' glftpd/sitebot/eggdrop.conf && {
-          echo "* Changed eggdrop.conf 'set servers $IRC_SERVERS'"
+          echo "* Changed eggdrop.conf servers to \"$IRC_SERVERS'"
         }
         break
       fi

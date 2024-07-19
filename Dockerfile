@@ -1,20 +1,16 @@
 ##################################################################   ####  # ##
-# >> DOCKERFILE-GLFTPD-V2
+# >> DOCKERFILE-GLFTPD-V3
 ##################################################################   ####  # ##
 
-ARG INSTALL_ZS=0
-ARG INSTALL_BOT=0
-ARG INSTALL_WEBGUI=0
-ARG GLFTPD_URL=${GLFTPD_URL:-"https://silv3rr.bitbucket.io/files/glftpd-LNX-2.13a_3.0.8_x64.tgz"}
-ARG GLFTPD_SHA=${GLFTPD_SHA:-1416604d5c5f5899a636af08c531129efc627bd52082f378b98425d719d08d8e6c88f60e3e1b54c872c88522b8995c4e5270ca1a3780e1e3b47b79e9e024e4c5}
-ARG GOTTY_URL=https://github.com/sorenisanerd/gotty/releases/download/v1.5.0/gotty_v1.5.0_linux_amd64.tar.gz
-ARG GOTTY_SHA=2d33af44cd9a179d8dd845dcd4b75698b5cbe6a38dd16796e3341be5a6785cca
-ARG PZS_URL=https://github.com/glftpd/pzs-ng/archive/master.tar.gz
+# images:
+#   debian:bookworm-slim
+#   debian:bookworm
+#   gcc:13.2.0-bookworm
+#   gcc:10.5.0-bullseye
 
 # debian base img
 
-# images: debian:bullseye-slim debian:bullseye gcc:10.5.0-bullseye
-FROM gcc:10.5.0-bullseye AS deb_base
+FROM debian:bookworm-slim as deb_base
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -27,7 +23,7 @@ RUN test -n "$http_proxy" && \
       xinetd \
       openssl \
       ca-certificates \
-      libssl1.1 \
+      libssl3 \
       libcrypt1 \
       curl \
       zip \
@@ -36,16 +32,18 @@ RUN test -n "$http_proxy" && \
       gosu && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /etc/xinetd.d/* && \
+    rm -rf /tmp/* /var/tmp/*; \
     gosu nobody true
 
 # compile pzs-ng (optional)
 
-FROM deb_base AS build
-ARG INSTALL_ZS
+FROM gcc:13.2.0-bookworm AS build
+ARG INSTALL_ZS=0
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
-ARG PZS_URL
+ARG PZS_URL=https://github.com/glftpd/pzs-ng/archive/master.tar.gz
 WORKDIR /build
+COPY --from=deb_base / /
 COPY etc/pzs-ng/zsconfig.h pzs-ng-master/zipscript/conf/zsconfig.h
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008,DL3003
@@ -74,98 +72,61 @@ RUN if [ "${INSTALL_ZS:-0}" -eq 1 ]; then \
 FROM deb_base AS bot
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
-ARG INSTALL_BOT
+ARG INSTALL_BOT=0
 #COPY --chown=999 etc/eggdrop.conf /glftpd/sitebot/eggdrop.conf
-COPY etc/eggdrop.conf /glftpd/sitebot/eggdrop.conf
+COPY --chown=0:0 bin/bot.sh /
+COPY etc/eggdrop.conf.gz /glftpd/sitebot/
 # hadolint ignore=SC1003,DL3008
 RUN if [ "${INSTALL_BOT:-0}" -eq 1 ]; then \
     apt-get update && \
     apt-get -yq install --no-install-recommends eggdrop && \
     rm -rf /var/lib/apt/lists/* && \
-    { echo '#!/bin/sh'; \
-      echo 'id sitebot 2>/dev/null || useradd -u 999 -r -s /usr/sbin/nologin -d /glftpd/sitebot sitebot'; \
-      echo 'cd /glftpd/sitebot || exit 1'; \
-      echo 'rm -rf pid.*'; \
-      echo 'test -s eggdrop.conf || {'; \
-      echo '  echo "ERROR: eggdrop.conf missing, cant start bot" | logger; exit 1'; \
-      echo '}'; \
-      echo 'test -s LamestBot.user || {' ;\
-      echo '  cat <<-'_EOF_' >LamestBot.user' ;\
-      echo '	#4v: eggdrop v1.8.4 -- Lamestbot -- written Mon Jan  1 13:00:00 1999' ;\
-      echo '	shit    - hjlmnoptx' ;\
-      echo '	--HOSTS -telnet!*@*' ;\
-      echo '	--LASTON 1000000000 partyline' ;\
-      echo '	--PASS +40v5K/me5ip/' ;\
-      echo '	--XTRA created 1000000000' ;\
-      echo '_EOF_'; \
-      echo '}'; \
-      echo 'test -s LamestBot.chan || >LamestBot.chan' ;\
-      echo 'chown -R sitebot:sitebot /glftpd/sitebot'; \
-      echo 'chmod -R 777 /glftpd/sitebot'; \
-      echo 'gosu sitebot eggdrop -n || exit 1;'; \
-    } >/bot.sh && \
-    chmod +x /bot.sh;\
+    rm -rf /tmp/* /var/tmp/*; \
+    chmod +x /bot.sh; \
+  else \
+    :>/bot.sh ;\
+    /usr/bin/eggdrop /usr/lib/x86_64-linux-gnu/libtcl ;\
+    mkdir -p /usr/lib/eggdrop /usr/share/eggdrop ;\
   fi
 
 # install glftpd
 
 FROM deb_base AS glftpd
+HEALTHCHECK CMD bash -c '>/dev/tcp/localhost/1337'
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
-ARG GLFTPD_URL
-ARG GLFTPD_SHA
-ARG INSTALL_ZS
-ARG INSTALL_BOT
-ARG INSTALL_WEBGUI
-ARG GOTTY_URL
-ARG GOTTY_SHA
+ARG GLFTPD_URL=${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"}
+ARG GLFTPD_SHA=${GLFTPD_SHA:-981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad}
+ARG INSTALL_ZS=0
+ARG INSTALL_BOT=0
+ARG INSTALL_WEBUI=0
 LABEL org.opencontainers.image.source=https://github.com/silv3rr/docker-glftpd
 LABEL org.opencontainers.image.description="Dockerized glftpd"
 LABEL gl.zipscript.setup=$INSTALL_ZS
 LABEL gl.sitebot.setup=$INSTALL_BOT
+LABEL gl.web.setup=$INSTALL_WEBUI
 EXPOSE 1337/tcp
 EXPOSE 5000-5100/tcp
 WORKDIR /glftpd
+#COPY --chown=0:0 --from=build /glftpd/bin/* /glftpd/bin/
+#COPY --chown=0:0 --from=build /glftpd/ftp-data/misc/who.* /glftpd/ftp-data/misc/banned_filelist.txt /glftpd/ftp-data/misc/
+#COPY --chown=0:0 --from=build /glftpd/ftp-data/pzs-ng /glftpd/ftp-data/pzs-ng
+#COPY --chown=0:0 --from=build /glftpd/sitebot/pzs-ng /glftpd/sitebot/pzs-ng
+COPY --chown=0:0 bin/entrypoint.sh /
 COPY --chown=0:0 etc/xinetd.conf /etc/xinetd.conf
-COPY --chown=0:0 etc/xinetd.d/glftpd /etc/xinetd.d
-COPY --chown=0:0 etc/.gotty /root/.gotty
-COPY --chown=0:0 bin/hashgen /glftpd/bin/hashgen
-COPY --chown=0:0 bin/pywho /glftpd/bin/pywho
-COPY --chown=0:0 etc/pywho.conf /glftpd/bin/pywho.conf
-COPY --chown=0:0 bin/spy /glftpd/bin/spy
-COPY --chown=0:0 etc/spy.conf /glftpd/bin/spy.conf
-COPY --chown=0:0 var/www/pyspy/ /glftpd/bin
+COPY --chown=0:0 etc/xinetd.d/glftpd /etc/xinetd.d/glftpd
+COPY --chown=0:0 etc/dot_gotty /root/.gotty
+COPY --chown=0:0 --from=bot /bot.sh /
+COPY --chown=0:0 --from=bot /usr/bin/eggdrop* /usr/bin/
+COPY --chown=0:0 --from=bot /usr/lib/eggdrop /usr/lib/eggdrop
+COPY --chown=0:0 --from=bot /usr/share/eggdrop /usr/share/eggdrop
+COPY --chown=0:0 --from=bot /usr/lib/x86_64-linux-gnu/libtcl* /usr/lib/x86_64-linux-gnu/
 COPY --chown=0:0 --from=build /glftpd /glftpd
-COPY --chown=0:0 --from=bot / /
+COPY --chown=0:0 --link bin/gotty bin/hashgen bin/passchk bin/pywho etc/pywho.conf bin/spy etc/webspy etc/spy.conf bin/gltool.sh /glftpd/bin/
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=SC2016,SC2028,DL3008
-RUN { echo '#!/bin/bash'; \
-      echo 'syslogd -n -O - &'; \
-      echo 'f="$(printf "#"%.0s {1..50})"'; \
-      echo 'printf "$f\nDOCKER-GLFTPD-V2 :: IP ADDRESS %s\n$f\n" "$(hostname -I)" | logger'; \
-      echo 'for i in 172.16.0.0/12 192.168.0.0/16 10.0.0.0/8; do'; \
-      echo '  grep -q "IP \*@$i" /glftpd/ftp-data/users/glftpd || echo "IP *@$i" >>ftp-data/users/glftpd'; \
-      echo "done" ;\
-      echo 'if [ -n "$GLFTPD_PASSWD" ]; then'; \
-      echo '  /glftpd/bin/hashgen glftpd "$GLFTPD_PASSWD" >/glftpd/etc/passwd &&'; \
-      echo '    { echo "INFO: glftpd user password changed" | logger; } ||'; \
-      echo '    { echo "ERROR: Failed to generate hash, glftpd password not changed" | logger; }'; \
-      echo "fi"; \
-      echo 'test -x /glftpd/bin/spy && /glftpd/bin/spy --web >/dev/null 2>&1 &'; \
-      echo 'test -x /bot.sh && /bot.sh &'; \
-      echo 'xinetd -dontfork'; \
-    } >/entrypoint.sh && \
-    test -e /glftpd/bin/spy.conf && \
-    sed -i -e 's/^flask_host = .*/flask_host = 0.0.0.0/' \
-           -e 's/^httpd_host = .*/httpd_host = 0.0.0.0/' /glftpd/bin/spy.conf && \
-# gotty
-    if [ "${INSTALL_WEBGUI:-0}" -eq 1 ]; then \
-      curl -sSL -O "$GOTTY_URL" && \
-      echo "$GOTTY_SHA  $( basename $GOTTY_URL )" | sha256sum -c && \
-      tar -C /bin -xf "$(basename $GOTTY_URL)"; \
-      rm "$(basename $GOTTY_URL)"; \
-    fi && \
-# glftpd    
+RUN test -e /glftpd/bin/spy.conf && \
+    sed -i 's/^\(flask\|http\)_host = .*/\1_host = 0.0.0.0/' /glftpd/bin/spy.conf; \
     curl -sSL -O "$GLFTPD_URL" && \
     echo "$GLFTPD_SHA  $( basename $GLFTPD_URL )" | sha512sum -c && \
     tar --strip-components=1 -C /glftpd -xf "$( basename $GLFTPD_URL )" >/dev/null && \
@@ -177,4 +138,7 @@ RUN { echo '#!/bin/bash'; \
     chown -R 0:0 /glftpd && \
     mkdir -m 777 site && \
     chmod +x /entrypoint.sh
+    # && \
+    #rm -rf /var/lib/apt/lists/* && \
+    #rm -rf /tmp/* /var/tmp/*
 ENTRYPOINT [ "/entrypoint.sh" ]
