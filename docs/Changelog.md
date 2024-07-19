@@ -4,15 +4,23 @@
 
 ### glftpd
 
-added health checks
+moved files to /bin /etc
 
+moved web to own glftpd-gui repo
+
+- added: gltool
+- added: custom commands
+- added: health checks
 - updated: debian 12 bookworm
 - updated: gcc 13
 - updated: openssl 3
-- fixed pzs-ng ;x
+- updated: pywho, pyspy
+- updated: pyspy static/templates
+- fixed: pzs-ng ;x
 
 ### web
 
+- added: auth (gl, basic)
 - updated: lib fontawesome-free-6.5.1
 
 ## V2

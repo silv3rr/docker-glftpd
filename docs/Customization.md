@@ -10,31 +10,25 @@ Also, you don't have to use any of the included scripts and stuff, the images wo
 
 Note: some changes may first require either switching to the 'full' image, a local image build or need a container restart to activate.
 
-To build your own local images, see [docs/Build.md](docs/Build.md)
+To build your own local images, check [docs/Build.md](docs/Build.md)
 
 ## glftpd
 
 Glftpd image comes in two flavors: a basic ftpd only setup or a 'full' install. The 'full' image adds zs and bot components (build with `INSTALL_ZS=1` `INSTALL_BOT=1`)
 
-- file: Dockerfile
-- size: ~125mb (multi stage with conditionals)
 - base: debian 12, x64 only
+- size: ~125mb (multi stage with conditionals) *
 - init: xinetd starts glftpd
 - logs: xinetd, syslog and bot's partyline goto stdout
 - view logs with `docker logs glftpd`
 
+\* image gets pretty big if you install all components
+
 ## webui
 
-A shitty web interface is included as a bonus.. it's quite the prize. Can be used to manage glftpd and bot etc in your browser. For details see [glftpd-webui](https://github.com/silv3rr/glftpd-webui).
+Shitty web interface :)
 
-- file: Dockerfile-web
-- size: ~50mb
-- base: latest alpine
-- separate image from 'glftpd'
-- webserver: nginx, php8 fpm
-- logs: nginx logs to stderr/stdout
-
-View access logs with `docker logs glftpd-web`.
+Runs in 'docker mode' to manage glftpd container, see [glftpd-webui](https://github.com/silv3rr/glftpd-webui)
 
 ## Customizer
 

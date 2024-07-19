@@ -1,129 +1,71 @@
-# docker-glftpd (v2)
+# docker-glftpd (v3)
 
 [![Docker](https://github.com/silv3rr/docker-glftpd/actions/workflows/docker.yml/badge.svg)](https://github.com/silv3rr/docker-glftpd/actions/workflows/docker.yml)
 
 Dockerized [glftpd](https://glftpd.io) for all
 
-Optionally adds [pzs-ng](https://pzs-ng.eu) and included [web-gui](#web-gui)
+Optionally adds [pzs-ng](https://pzs-ng.eu) and included [Web UI](#WebUI)
 
 GitHub container registry: [docker-glftpd](https://github.com/users/silv3rr/packages/container/package/docker-glftpd)
-
-## Screenshots
-
-> _Web GUI's main page (optional component)_
-
-![main](docs/glcc.png "Main page")
-
-See "[Web GUI](#web-gui)" below
 
 ## Quick Start
 
 Usage: `docker run ghcr.io/silv3rr/docker-glftpd`
 
-Without changing anything, this gets a temp ftp up and running. Good for testing.
+Without changing anything, this gets a (temp) ftp up and running. Good for testing.
 
 It uses these default settings:
 
 - listen port is 1337
 - ftp login: glftpd/glftpd, internal ip ranges allowed
 - no permanent config, udb or storage
-- does not include zs and bot component
+- does not include zs, bot or webui components
 
 Test connection: `./test/login.sh` (also shows bind ip ;p)
 
 Change password for 'glftpd' user: `GLFTPD_PASSWD="MyPassw0rd" ./docker-run.sh`
 
+## Contents
+
+so, i heard you like reading..
+
+- [docs/Build.md](docs/Build.md)
+- [docs/Customization.md](docs/Customization.md)
+- [docs/Files.md](docs/Files.md)
+- [docs/Run.md](docs/Run.md)
+- [docs/Compose.md](docs/Compose.md)
+
 ## Customizing
 
-How to add zipscript, bot and webgui components and permanent configuration using docker build/run
+To use permanent configuration, add zipscript, bot and webui components you can set variables before staring docker build/run scripts.
 
-Note: some changes may first require either switching to the 'full' image, a local image build or need a container restart to activate.
+**Example**:
 
-Also, you don't have to use any of the included scripts and stuff, the images work fine on their own too (bind mount your config files).
+```
+# run a 'full' permanent glftpd setup, with bot:
+GLFTPD_PERM_UDB=1 GLFTPD_CONF=1 GLFTPD_SITE=1 \
+IRC_SERVERS="irc.efnet.org:6667 irc2.example.org:6697" IRC_CHANNELS="#pzs #pzs-staff" \
+USE_FULL=1 WEBUI=1 ./docker-run.sh
+```
 
-See below if you prefer using [docker-compose](#docker-compose)
+For details about an even more tailored setup (diferrent ip/port, gl ver etc), or changing the images, see [docs/Customization.md](docs/Customization.md). Also check this page for using sitebot and info about adding 3rd party scripts.
 
 ### Images
 
-#### glftpd
+To use prebuild images from github, just run: `./docker-run.sh`.
 
-"Basic setup"
-
-use: `./docker-run.sh`, or manually: `docker run ghcr.io/silv3rr/docker-glftpd:latest`
-
-- file: Dockerfile
-- image: ghcr.io/silv3rr/docker-glftpd:latest
-- size: ~125mb (multi stage with conditionals)
-- base: debian 11 slim, x64 only
-- init: xinetd starts glftpd
-- logs: xinetd, syslog and bot's partyline goto stdout
-  view logs with `docker logs glftpd`
-
-"Full image"
-
-use: `USE_FULL=1 ./docker-run.sh`, or manually: `docker run ghcr.io/silv3rr/docker-glftpd:full`
-
-- image: ghcr.io/silv3rr/docker-glftpd:full
-- same base
-- includes zs and bot components, as it's build with `INSTALL_ZS=1` `INSTALL_BOT=1`
-
-#### webgui
-
-Starts automatically when running `docker-run.sh`
-
-- file: Dockerfile-web
-- image: ghcr.io/silv3rr/docker-glftpd-web:latest
-- size: ~50mb
-- base: latest alpine
-- webserver: nginx, php8 fpm
-- logs: nginx logs to stderr/stdout
-
-A shitty web interface is included as a bonus.. it's quite the prize. Can be used to manage glftpd and bot etc in your browser. Uses a separate image from glftpd. View access logs with  `docker logs glftpd-web`. See "[Web GUI](#web-gui)"
-
-### Components
-
-#### ZS
-
-Adds pzs-ng. Configured by editing 'etc/pzs-ng/zsconfig.h' as usual (needs image rebuild to recompile after changing). Requires an image that's build with `INSTALL_ZS=1`.
-
-#### Bot
-
-Adds optional sitebot which will listen on port 3333. Login to partyline using telnet and default user/pass `shit/EatSh1t`. Needs irc server set in 'glftpd/sitebot/eggdrop.conf' (use docker-run.sh) and `.+chan #yourchan` from partyline. ngBot can be changed in 'glftpd/sitebot/pzs-ng/ngBot.conf'. Requires image build with `INSTALL_BOT=1`.
+Or, for the 'full' glftpd image: `USE_FULL=1 ./docker-run.sh`
 
 ## Scripts
 
-### `docker-run.sh`
+### docker-run.sh
 
-Main script that takes care of creating/changing config files and docker runtime args for you. Then starts glftpd and web-gui container.
+Main script that takes care of creating/changing config files and docker runtime args for you. Then it starts glftpd and web-gui container.
 
 Uses environment variables to change settings. Put them in front of script, e.g.
 `FORCE=1 GLFTPD_PASV_ADDR="1.2.3.4" ./docker-run.sh`.
 
-It sets up most common stuff:
-
-- glftpd ip/ports/nat (or autodetect)
-- if zs component is enabed: add required pzs-ng settings to glftpd.conf
-- for sitebot component: eggdrop.conf and user files
-- permanent userdb and 'glftpd/site' storage
-- handle docker network and mounts
-
-Files in 'etc' are used as templates to create a new 'glftpd' dir with config files. Any changes persist until you remove that dir.
-
-The script uses bind mounts with relative paths, e.g.
-
-- local ./glftpd/glftpd.conf on host gets mounted as /glftpd/glftpd.conf in container
-- local ./glftpd/sitebot/eggdrop.conf on host gets mounted as /glftpd/sitebot/eggdrop.conf in container
-- local ./glftpd/site on host gets mounted as /glftpd/site in container
-
-After config it will check for a local image to start first or if it's not available it'll get the image from github registry.
-
-The container name will be `glftpd` with same hostname, and a `glftpd-web` container using `web` as hostname. Both use the 'shit' network. By default containers gets removed when stopped.
-
-Runs `docker run --rm --detach --name glftpd --hostname glftpd --publish 1337:1337 --workdir /glftpd docker-glftpd:latest` (+ any options)
-
-For all available options, see comments inside [docker-run.sh](docker-run.sh)
-
-**Examples**:
+**Example**:
 
 ```
 # change gl ports:
@@ -136,98 +78,47 @@ GLFTPD_CONF=1 GLFTPD_PERM_UDB=1 GLFTPD_SITE=1 ./docker-run.sh
 ./docker-run.sh --network host --volume $(pwd)/site/mp3:/glftpd/site/mp3:rw --volume $(pwd)/site/xxx:/glftpd/site/xxx:rw
 ```
 
-### `docker-build.sh`
+### docker-build.sh
 
 Wrapper script to (re)build images that can be used for local images besides the prebuild images from github registry.
 
-Docker downloads glftpd and (if enabled) zs/bot component. It puts them into image with init & startup script and then builds it: `docker build ./docker-run.sh --cache-from docker-glftpd:2.13 --tag docker-glftpd:<VERSION> --tag docker-glftpd:latest` (+ any build-args).
-
-The image name will be tagged `glftpd:latest`. If you enabled the web interface, a `docker-glftpd-web:latest` image is also build.
-
-Options work the same as docker-run script.
-
-For all available build args, see comments inside [docker-build.sh](docker-build.sh).
-
-**Examples**:
+**Example**:
 
 ```
 # build with web interface, pzs-ng and bot:
-INSTALL_WEBGUI=1 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh; ./docker-run.sh
+INSTALL_WEBUI=1 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh; ./docker-run.sh
 ```
 
-To update glftpd when there's a new glftpd version out come December, change `GLFTPD_URL` and `GLFTPD_SHA` in docker-build.sh and rerun script.
+To update glftpd when there's a new glftpd version out (come December), change `GLFTPD_URL` and `GLFTPD_SHA` in docker-build.sh and rerun script.
 
-### docker compose
+## Compose
 
-What about docker compose you ask? Sure, 'docker-compose.yml' is included too:
-`docker compose up --detach`
+What about docker compose you ask? Sure, just run `docker compose up --detach`. Details: [docs/Compose.md](docs/Compose.md).
 
-To build local images instead:
-`docker compose --profile local up --build local-glftpd local-web --detach`
+## WebUI
 
-Edit .yml to set build `args` and options under `environment`. Also you'll have to manage  config files yourself instead of having docker-run.sh doing it for you.
+A web interface can optionally be installed as a bonus. Can be used to manage glftpd and bot etc from the comfort of your browser.. it's quite the prize.
 
-## Web GUI
-
-Use `docker run ghcr.io/silv3rr/docker-glftpd-web`  (or local image: `docker-glftpd-web`)
+Start: `docker run ghcr.io/silv3rr/docker-glftpd-web`
 
 Open url: https://your.ip:4444 and login: `shit/EatSh1t`  (basic web auth).
 
-Optional component that that shows online users, status and stops/starts glftpd container. Can also be used to view logs, edit config files and browse site. And has a browser terminal that displays gl_spy, useredit and bot partyline (using websockets).
-
-Make sure your source ip is whitelisted and you're using the correct user/pass. Default is `allow` all private ip ranges. To change edit etc/nginx/http.d/webgui.conf and rebuild image.
-
-> _Terminal modal showing bot_
-
-![bot](docs/bot.png "Terminal modal showing bot")
-
-Cutting-edge tech used:
-
-- PHP, some JQuery and Bootstrap4
-- Filemanager: [tinyfilemanager](https://tinyfilemanager.github.io/)
-- Web Terminal: [GoTTY](https://github.com/sorenisanerd/gotty)
-- [pyspy](https://github.com/silv3rr/pyspy) (flask)
+For screenshots and more information see [github.com/silv3rr/glftpd-webui](https://github.com/silv3rr/glftpd-webui)
 
 ## Files
 
-| Path                               | Description                         |Owner, mode|
-|:-----------------------------------|:------------------------------------|:----------|
-| docker-build.sh                    | (re)build images                    |           |
-| docker-run.sh                      | start container, manage config      |           |
-| customizer.sh                      | used by docker-run.sh               |           |
-|||                                                                        |
-| etc/.gotty                         | browser terminal cfg                |           |
-| etc/xinetd*                        | init                                |           |
-|||                                                                        |
-| bin/hashgen.c                      | generates gl passwd hash            |           |
-| bin/passwd.sh                      |                                     |           |
-| test/*.sh                          | test ftp using lftp                 |           |
-|||
-| **Config templates** ||
-| etc/glftpd/glftpd.conf.gz          | glftpd/glftpd.conf                  |           |
-| etc/glftpd/udb-skel.tar.gz         | glftpd/etc/passwd                   |           |
-|                                    | glftpd/etc/ftp-data/{users,groups}  |           |
-| etc/eggdrop.conf                   | glftpd/eggdrop.conf                 | 999, 660  | 
-| etc/pzs-ng/ngBot-skel.tar.gz       | glftpd/sitebot/pzs-ng/              |           |
-| etc/pzs-ng/ngBot.conf.gz           | glftpd/sitebot/pzs-ng/ngBot.conf    | 999, XXX  |
-|||
-| **Generated**||
-| userfile created by docker         | glftpd/sitebot/LamestBot.user       | 999, 660  |
-| chanfile created by eggdrop        | glftpd/sitebot/LamestBot.chan       | 999, XXX  |
-| etc/pzs-ng/zsconfig.h              | copied by docker, changes need rebuild |        |
-|||
-| glftpd/site                        | container dir (default) or bind mount |  XXX, 777  |
-|||
-| **Web** ||
-| etc/nginx                          |                                     |           |
-| var/www                            | html, css, js for webgui            |           |
-|||
+See [docs/Files.md](docs/Files.md) for directory structure.
 
 ## Issues
 
 - why would you use this? uhh i dunno, cuz ur too stupid to setup gl urself?! :P
-- why does the web interface suck? .. the name didnt give it away?!
+- why does the web interface suck? .. it was originally named SHIT...
 - will it run on windows/macos/k8s? no idea, probably.. try it. podman? probably not
 - hashgen doesnt work? try recompiling: `gcc -o hashgen hashgen.c -lcrypto -lcrypt`
 - the bot doesnt start? check owner/perms of sitebot files
+- why bind mounts? if you want volumes instead .. change `type` in docker-run.sh / docker-compose.yml
 - other than that, just `rm -rf ./glftpd; docker rm -f glftpd` to start over
+
+## Changes
+
+See [docs/Changelog.md](docs/Changelog.md)
