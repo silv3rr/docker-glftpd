@@ -1,7 +1,8 @@
+/glftpd
 /glftpd/
 /archive/
-var/www/webgui/glftpd/
-var/www/webgui/lib/fontawesome-free-6.1.2-web/
+bin/pyspy-*.sha512sum
+bin/pyspy-*.tar.gz
 .env
 *.bak
 *.crt
