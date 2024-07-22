@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>spy</title>
+</head>
+<body>
+<p>default template</p>
+
+{% if default.__class__.__name__ == "str" -%}
+    {{ default }}
+{% endif -%}
+{% if default.__class__.__name__ == "dict" %}
+    {% for i in default.items() -%}
+        {{ i }}
+    {% endfor -%}
+{% endif %}
+{% if default.__class__.__name__ == "list" %}
+    {% for i in default -%}
+        {{ i }}
+    {% endfor -%}
+{% endif %}
+
+</body>
+</html>

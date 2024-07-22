@@ -1,0 +1,23 @@
+// docker-glftpd::template
+
+//address = "1.2.3.4"
+//address = "127.0.0.1"
+permit_write = true
+//enable_basic_auth = true
+//credential = 
+//enable_tls = true
+//tls_crt_file = "cert.pem"
+//tls_key_file = "key.pem"
+max_connection = 3
+once = true
+permit_arguments = false
+cursor_blink = true
+term = "xterm"
+//preferences {
+//  font_size = 13
+//  background_color = "rgb(16, 16, 32)"
+//  keybindings = { "Ctrl-A" = "''" }
+//  keybindings = { "Ctrl-C" = "''" }
+//  keybindings = { "Ctrl-Q" = "''" }
+//  keybindings = { "Ctrl-Z" = "''" }
+//}

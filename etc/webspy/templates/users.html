@@ -1,0 +1,54 @@
+{% if users[0] -%}
+    {% if not uniq_attr -%}
+        {% set uniq_attr=None -%}
+    {% endif -%}
+    {% for user in users | sort(attribute=sort_attr, reverse=sort_rev) | unique(attribute=uniq_attr) %}
+        {% if not search or (search in user.name or search in user.group or search in user.host or search in user.get('host')) %}
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2" {% if user.speed -%}style="background-color:lightgray;"{%- endif -%}>
+                        <span id="bold"><a href="/user/{{ user.name }}">{{ user.name }}</a></span>/{{ user.group }}
+                        <span class="icons">
+                            <span id="index">{{ loop.index }}/{{ loop.length }}</span>
+                            <button onclick="api_call('user', '{{user.name}}')"><img src="{{ url_for('static', filename='g15950.svg') }}"></button>
+                            <button onclick="api_call('kick', '{{user.name}}')"><img src="{{ url_for('static', filename='g1112.svg') }}"></button>
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>host</td> 
+                    <td>{{ user.get('host') }}{% if user.ip %} ({{ user.ip }}){% endif %}{% if user.iso_code %} <span id="bold">{{ user.iso_code }}</span>{% endif %}</td>
+                </tr>
+                <tr>
+                    <td>tagline</td> 
+                    <td>"{{ user.get('tagline') }}"</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>{{ user.fmt_status }} &nbsp; Online: {{ user.online }}</td>
+                </tr>
+                <tr>
+                    <td>path</td> 
+                    <td>{{ user.get('currentdir') }}{% if user.filesize %} ({{ '{:.0f}'.format(user.filesize/1024**2) }}GB){% endif %}</td>
+                </tr>
+                {% if user.speed %}
+                <tr>
+                    <td>transfer</td>
+                    <td>
+                        {% if user.get_traf_dir() == "Up" %}
+                            {{ '{:0.2f}'.format(user.mb_xfered) }}MiB of {{ user.filename }}
+                        {% else %}
+                            {{ '{:3.0f}%'.format(user.pct) }} &nbsp; 
+                            <progress value="{{ '{:3.0f}'.format(user.pct) }}" max="100"></progress>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% endif %}
+    {% endfor %}
+{% endif %}

@@ -20,23 +20,23 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Login to Github Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build basic glftpd and web images
-        run: INSTALL_WEBGUI=1 INSTALL_ZS=0 INSTALL_BOT=0 ./docker-build.sh
+      - name: Build basic glftpd image
+        run: INSTALL_WEBUI=0 INSTALL_ZS=0 INSTALL_BOT=0 ./docker-build.sh
       - name: Push images
         run: |
           docker tag docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:latest
-          docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web:latest
+          #docker tag docker-glftpd-web:latest ghcr.io/silv3rr/docker-glftpd-web:latest
           docker push ghcr.io/silv3rr/docker-glftpd:latest
-          docker push ghcr.io/silv3rr/docker-glftpd-web:latest
+          #docker push ghcr.io/silv3rr/docker-glftpd-web:latest
       - name: Build full glftpd image
-        run: INSTALL_WEB=0 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh
+        run: INSTALL_WEBUI=0 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh
       - name: Push full image
         run: |
           docker tag docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:full

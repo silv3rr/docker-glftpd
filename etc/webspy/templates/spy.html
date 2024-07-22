@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>spy.py</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <div class="top">
+            <span id="title">py-spy | web</span>
+            <div id="version">
+                <div>{{ spy_version }}</div>
+                <div>{{ glftpd_version }}</div>
+            </div>
+        </div>  
+        <div id="menu" class="settings">
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="1">
+                            <span id="bolder">Settings</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span class="theme-switch-wrapper">
+                                <label class="theme-switch" for="theme-checkbox">
+                                    <input type="checkbox" id="theme-checkbox"/>
+                                    <span class="slider round"></span>
+                                </label>
+                                dark mode
+                            </span>
+                        &nbsp;
+                        <button id="no_refresh" onclick="set_norefresh()"><img src="{{ url_for('static', filename='g18426.svg') }}"></button> stop refresh
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <form>
+                                <div>
+                                    <input id="search" type="textfield" name="search" size=28 placeholder="search user, group, host, ip..."/>
+                                </div>
+                                <select id="sort_attr" name="sort_attr" >
+                                    <option value="" selected>sort by...</option>
+                                    <option>name</option>
+                                    <option>group</option>
+                                    <option>status</option>
+                                    <option>online</option>
+                                    <option>path</option>
+                                    <option>speed</option>
+                                </select>
+                                &nbsp;
+                                <input id="sort_rev" type="checkbox" name="sort_rev" value="True"> 
+                                <label for="sort_rev">reverse</label>
+                                <input id="uniq_name" type="checkbox" name="uniq_attr" value="name">
+                                <label for="uniq_name">unique</label>
+                                &nbsp;
+                                <button id="apply_filter" type="submit">apply</button>
+                            </form>
+                            &nbsp;
+                            <form>
+                                <input type="hidden" name="sort_attr" value=""/>
+                                <input type="hidden" name="sort_rev" value=""/>
+                                <input type="hidden" name="uniq_attr" value=""/>
+                                <input type="hidden" name="search" value=""/>
+                                <button id="clear_attr" type="submit">reset</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="include_spy_totals" class="totals">
+            {% include 'totals.html' %}
+        </div>
+        <div id="spy_api_result"></div>
+        <div class="who">
+            <span id="show_info">
+                {%- if not error %}
+                    {%- if search %}
+                        search: "{{ search }}"
+                    {% else %}
+                        {% if sort_attr or uniq_attr -%}
+                            filter: <span class="bold underline">on</span> | 
+                            {%- if sort_attr %}
+                                sort: '{{ sort_attr }}'
+                                ({{ 'desc' if sort_rev else 'asc' }})
+                            {%- endif %}
+                            {%- if uniq_attr %}
+                                unique: '{{ uniq_attr }}'
+                            {%- endif %}
+                        {% else -%}
+                            filter: off
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </span>
+            {%- if error %}
+                <span id="bartext" style="display:inline-block">No logged in users users found..</span>
+            {% else -%}
+                <span id="bartext">
+                    <img src="{{ url_for('static', filename='g138281.svg') }}"> Online users
+                </span>
+            {% endif %}
+        </div>
+        <div class="row">
+            <div id="include_spy_users" class="users">
+                {% include 'users.html' %}
+            </div>
+        </div>
+        <script type="text/javascript" src="{{ url_for('spy_js') }}"></script>
+    </body>
+</html>

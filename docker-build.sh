@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################## ################################   ####  # ##
-# >> DOCKER-BUILD-GLFTPD-V2
+# >> DOCKER-BUILD-GLFTPD-V3
 ################################## ################################   ####  # ##
 #
 # BUILD-TIME VARIABLES:
@@ -11,8 +11,7 @@
 #
 # INSTALL_ZS=1                      uses etc/pzs-ng/zsconfig.h
 # INSTALL_BOT=1                     install eggdrop and ngBot *
-# INSTALL_WEBGUI=1                  install web interface
-# WEBGUI_PASSWORD=MyPw123           set htpasswd
+# INSTALL_WEBUI=1                   install web interface
 #
 # ARGS+= " --any-flags " add any other docker build options
 #
@@ -20,24 +19,29 @@
 #
 # EXAMPLE:
 #
-#   INSTALL_ZS=1 INSTALL_BOT=1 INSTALL_WEBGUI=1 ./docker-build.sh
+#   INSTALL_ZS=1 INSTALL_BOT=1 INSTALL_WEBUI=1 ./docker-build.sh
 #
 ##################################################################   ####  ## ##
 
+BUILD_GLFTPD=1
+#INSTALL_WEBUI=0
+
 # set glftpd version
-GLFTPD_URL="${GLFTPD_URL:-"https://silv3rr.bitbucket.io/files/glftpd-LNX-2.13a_3.0.8_x64.tgz"}"
-GLFTPD_SHA="${GLFTPD_SHA:-"1416604d5c5f5899a636af08c531129efc627bd52082f378b98425d719d08d8e6c88f60e3e1b54c872c88522b8995c4e5270ca1a3780e1e3b47b79e9e024e4c5"}"
+#GLFTPD_URL="${GLFTPD_URL:-"https://mirror.glftpd.nl.eu.org/glftpd-LNX-2.14a_3.0.12_x64.tgz"}"
+GLFTPD_URL="${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"}"
+GLFTPD_SHA="${GLFTPD_SHA:-"981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad"}"
 GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*/\1/' )"
 
-ARGS="$*"
+ARGS+="$*"
 
 echo "----------------------------------------------"
-echo "DOCKER-GLFTPD-BUILD-V2"
+echo "DOCKER-GLFTPD-BUILD-V3"
 echo "----------------------------------------------"
 
-if [ "${BUILD_GL:-1}" -eq 1 ]; then
+if [ "${BUILD_GLFTPD:-1}" -eq 1 ]; then
   echo "Build image: 'docker-glftpd'"
-  echo "( ignore errors about cache )"
+  echo "* you can ignore any cache errors"
+  # shellcheck disable=SC2086
   docker build \
     $ARGS \
     --cache-from "docker-glftpd:latest" \
@@ -47,19 +51,20 @@ if [ "${BUILD_GL:-1}" -eq 1 ]; then
     --build-arg GLFTPD_SHA="${GLFTPD_SHA}" \
     --build-arg INSTALL_BOT="${INSTALL_BOT:-0}" \
     --build-arg INSTALL_ZS="${INSTALL_ZS:-0}" \
-    --build-arg INSTALL_WEBGUI="${INSTALL_WEBGUI:-0}" \
+    --build-arg INSTALL_WEBUI="${INSTALL_WEBUI:-0}" \
     --build-arg http_proxy="${http_proxy:-$HTTP_PROXY}" \
     .
 fi
 
-if [ "${INSTALL_WEBGUI:-0}" -eq 1 ]; then
+if [ "${INSTALL_WEBUI:-0}" -eq 1 ]; then
   echo "Build image 'docker-glftpd-web'"
+  # shellcheck disable=SC2086
   docker build \
     $ARGS \
-    --file Dockerfile-web \
+    --file Dockerfile \
     --cache-from "docker-glftpd-web:latest" \
     --tag "docker-glftpd-web:latest" \
-    --build-arg WEBGUI_CERT="${WEBGUI_CERT:-1}" \
+    --build-arg WEBUI_CERT="${WEBUI_CERT:-1}" \
     --build-arg http_proxy="${http_proxy:-$HTTP_PROXY}" \
-    .
+    https://github.com/silv3rr/glftpd-webui.git
 fi
