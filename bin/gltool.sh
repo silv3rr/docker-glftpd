@@ -727,7 +727,7 @@ func_adduser() {
 func_deluser() {
   func_check_user "$USERNAME"
   func_clean_tmp
-  rm "$USERFILE" || { echo "ERROR: deleting userfile"; exit 1; 
+  rm "$USERFILE" || { echo "ERROR: deleting userfile"; exit 1; }
   sed "/^$USERNAME/d" "$GLDIR/etc/passwd" >> "$GLDIR/etc/passwd.tmp" || { echo "ERROR: changing /etc/passwd"; exit 1; }
   if [ -s "$GLDIR/etc/passwd.tmp" ]; then
     mv "$GLDIR/etc/passwd.tmp" "$GLDIR/etc/passwd" || { echo "ERROR: updating passwd file"; exit 1; }
