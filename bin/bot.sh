@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if ! id sitebot >/dev/null 2>&1; then
-	useradd -u 999 -r -s /usr/sbin/nologin -d /glftpd/sitebot sitebot
+  useradd -u 999 -r -s /usr/sbin/nologin -d /glftpd/sitebot sitebot
 fi
 cd /glftpd/sitebot || exit 1
 rm -rf pid.*

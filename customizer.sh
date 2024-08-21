@@ -1,16 +1,21 @@
 #!/bin/bash
 
+################################## ################################   ####  # ##
+# >> DOCKER-GLFTPD-CUSTOMIZER
+################################## ################################   ####  # ##
+#                                          ,
+#  used by docker-run.sh:                _/\
+#  modifies gl/bot config files         (._.)  -- HI! I CUSTOMIZE
+#  can also be run standalone          (_____)      YO SHEEEIT
+#  e.g. for compose)                  (_______)
+#
+################################## ################################   ####  # ##
+
+RESET=1
+
 echo "----------------------------------------------"
 echo "DOCKER-GLFTPD-CUSTOMIZER-V3"
 echo "----------------------------------------------"
-#       ,
-#     _/\
-#    (._.)  -- HI!
-#   (_____)
-#  (_______)
-#
-
-RESET=1
 
 echo "* Adding customizations to config files"
 
