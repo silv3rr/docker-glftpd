@@ -11,6 +11,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# glftpd.io is down
+env:
+  GLFTPD_URL: "https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"
+
 jobs:
   docker-images:
     name: Build Docker images and push to repositories
