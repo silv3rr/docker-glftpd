@@ -1,13 +1,14 @@
+---
 ###################################################################   ####  # ##
 # >> DOCKER-COMPOSE-GLFTPD-V3
 ###################################################################   ####  # ##
 # build args: <see docker-build.sh comments>
 # environment options: <see docker-run.sh comments>
+#
 # uncomment any volumes to mount dirs from host
-# optionally uncomment any additional ports and args
+# optionally uncomment args e.g. additional ftp ports
 ###################################################################   ####  # ##
 
----
 services:
   glftpd:
     image: ghcr.io/silv3rr/docker-glftpd:latest
@@ -104,9 +105,9 @@ services:
       # uncomment to set port, auth mode, htpasswd etc
       # args:
       #   - WEBUI_PORT=4043
-      #   - WEBUI_AUTHMODE=basic
-      #   - WEBUI_USERNAME=notshit
-      #   - WEBUI_PASSWORD=Othersh1ttyPass
+      #   - WEBUI_AUTH_MODE=basic
+      #   - WEBUI_AUTH_USER=notshit
+      #   - WEBUI_AUTH_PASS=Othersh1ttyPass
     # uncomment to use host instead of bridge
     # network_mode: host
     ##privileged: true
@@ -118,6 +119,6 @@ services:
     depends_on: [local-glftpd]
     # uncomment to change authmode of the fly (basic|glftpd|both|none)
     # environment:
-    #   - WEBUI_AUTHMODE=glftpd
+    #   - WEBUI_AUTH_MODE=glftpd
 
 # volumes:
