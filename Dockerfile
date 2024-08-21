@@ -2,11 +2,9 @@
 # >> DOCKERFILE-GLFTPD-V3
 ##################################################################   ####  # ##
 
-# images:
-#   debian:bookworm-slim
-#   debian:bookworm
-#   gcc:13.2.0-bookworm
-#   gcc:10.5.0-bullseye
+# other base images
+#   debian:bookworm-slim debian:bookworm
+#   gcc:13 gcc:12.2.0-bookworm gcc:10.5.0-bullseye
 
 # debian base img
 
@@ -30,42 +28,8 @@ RUN test -n "$http_proxy" && \
       unzip \
       busybox-syslogd \
       gosu && \
-    rm -rf /var/lib/apt/lists/* && \
     rm -rf /etc/xinetd.d/* && \
-    rm -rf /tmp/* /var/tmp/*; \
     gosu nobody true
-
-# compile pzs-ng (optional)
-
-FROM gcc:13.2.0-bookworm AS build
-ARG INSTALL_ZS=0
-ARG DEBIAN_FRONTEND=noninteractive
-ARG DEBCONF_NOWARNINGS="yes"
-ARG PZS_URL=https://github.com/glftpd/pzs-ng/archive/master.tar.gz
-WORKDIR /build
-COPY --from=deb_base / /
-COPY etc/pzs-ng/zsconfig.h pzs-ng-master/zipscript/conf/zsconfig.h
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# hadolint ignore=DL3008,DL3003
-RUN if [ "${INSTALL_ZS:-0}" -eq 1 ]; then \
-    apt-get update && \
-    apt-get -yq install --no-install-recommends \
-      build-essential \
-      file && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -sSL -L -O ${PZS_URL} && \
-    tar -xf master.tar.gz && \
-    ( cd pzs-ng-master && \
-          ./configure --enable-gl202-64 && \
-          make && \
-          make install ) && \
-    ( cd pzs-ng-master/sitebot && \
-      mkdir -p /glftpd/sitebot/pzs-ng/themes && \
-      cp -R ngBot.* plugins themes modules /glftpd/sitebot/pzs-ng/ && \
-      cp ngBot.conf.dist /glftpd/sitebot/pzs-ng/ngBot.conf ); \
-  else \
-    mkdir /glftpd; \
-  fi
 
 # eggdrop (optional)
 
@@ -78,16 +42,43 @@ COPY --chown=0:0 bin/bot.sh /
 COPY etc/eggdrop.conf.gz /glftpd/sitebot/
 # hadolint ignore=SC1003,DL3008
 RUN if [ "${INSTALL_BOT:-0}" -eq 1 ]; then \
-    apt-get update && \
     apt-get -yq install --no-install-recommends eggdrop && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* /var/tmp/*; \
+    gunzip -v /glftpd/sitebot/eggdrop.conf.gz; \
     chmod +x /bot.sh; \
   else \
+    mkdir -p /usr/bin/eggdrop /usr/lib/eggdrop /usr/share/eggdrop ;\
     :>/bot.sh ;\
-    /usr/bin/eggdrop /usr/lib/x86_64-linux-gnu/libtcl ;\
-    mkdir -p /usr/lib/eggdrop /usr/share/eggdrop ;\
-  fi
+  fi; \
+  rm -rf /var/lib/apt/lists/* && \
+  rm -rf /tmp/* /var/tmp/*
+
+# compile pzs-ng (optional)
+
+FROM gcc:12-bookworm AS build
+ARG INSTALL_ZS=0
+ARG DEBIAN_FRONTEND=noninteractive
+ARG DEBCONF_NOWARNINGS="yes"
+ARG PZS_URL=https://github.com/glftpd/pzs-ng/archive/master.tar.gz
+WORKDIR /build
+COPY --from=deb_base / /
+COPY etc/pzs-ng/zsconfig.h pzs-ng-master/zipscript/conf/zsconfig.h
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3003,DL3008
+RUN mkdir /glftpd && \
+    if [ "${INSTALL_ZS:-0}" -eq 1 ]; then \
+      curl -sSL -L -O ${PZS_URL} && \
+      tar -xf master.tar.gz && \
+      ( cd pzs-ng-master && \
+            ./configure --enable-gl202-64 && \
+            make && \
+            make install ) && \
+      ( cd pzs-ng-master/sitebot && \
+        mkdir -p /glftpd/sitebot/pzs-ng/themes && \
+        cp -R ngBot.* plugins themes modules /glftpd/sitebot/pzs-ng/ && \
+        cp ngBot.conf.dist /glftpd/sitebot/pzs-ng/ngBot.conf ); \
+    fi
 
 # install glftpd
 
@@ -117,12 +108,14 @@ COPY --chown=0:0 etc/xinetd.conf /etc/xinetd.conf
 COPY --chown=0:0 etc/xinetd.d/glftpd /etc/xinetd.d/glftpd
 COPY --chown=0:0 etc/dot_gotty /root/.gotty
 COPY --chown=0:0 --from=bot /bot.sh /
+COPY --chown=0:0 --from=bot /glftpd/sitebot /glftpd/sitebot
 COPY --chown=0:0 --from=bot /usr/bin/eggdrop* /usr/bin/
 COPY --chown=0:0 --from=bot /usr/lib/eggdrop /usr/lib/eggdrop
 COPY --chown=0:0 --from=bot /usr/share/eggdrop /usr/share/eggdrop
 COPY --chown=0:0 --from=bot /usr/lib/x86_64-linux-gnu/libtcl* /usr/lib/x86_64-linux-gnu/
 COPY --chown=0:0 --from=build /glftpd /glftpd
-COPY --chown=0:0 --link bin/gotty bin/hashgen bin/passchk bin/pywho etc/pywho.conf bin/spy etc/webspy etc/spy.conf bin/gltool.sh /glftpd/bin/
+COPY --chown=0:0 bin/gotty bin/hashgen bin/passchk bin/pywho etc/pywho.conf bin/spy etc/spy.conf bin/gltool.sh /glftpd/bin/
+#COPY --chown=0:0 etc/webspy /glftpd/bin/webspy/
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=SC2016,SC2028,DL3008
 RUN test -e /glftpd/bin/spy.conf && \
