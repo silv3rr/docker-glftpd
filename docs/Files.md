@@ -18,7 +18,7 @@
 | etc/glftpd/glftpd.conf.gz          | glftpd/glftpd.conf                  |           |
 | etc/glftpd/udb-skel.tar.gz         | glftpd/etc/passwd                   |           |
 |                                    | glftpd/etc/ftp-data/{users,groups}  |           |
-| etc/eggdrop.conf                   | glftpd/eggdrop.conf                 | 999, 660  | 
+| etc/eggdrop.conf.gz                | glftpd/eggdrop.conf                 | 999, 660  | 
 | etc/pzs-ng/ngBot-skel.tar.gz       | glftpd/sitebot/pzs-ng/              |           |
 | etc/pzs-ng/ngBot.conf.gz           | glftpd/sitebot/pzs-ng/ngBot.conf    | 999, XXX  |
 |||

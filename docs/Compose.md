@@ -1,11 +1,13 @@
 # Docker Compose
 
-Includes `docker-compose.yml` (V3)
+Includes `docker-compose.yml` which replaces docker-build.sh and docker-run.sh scripts.
 
 To build local images:
 `docker compose --profile local up --build local-glftpd local-web --detach`
 
-Edit docker-compose.yml to set build `args` and options under `environment`. Also you'll have to manage `volumes` (bind mounts) yourself, instead of having docker-run.sh doing it for you. The customizer script can be used to modify gl/bot config files.
+Edit docker-compose.yml to set build `args` and options under `environment`. Also you'll have to manage `volumes` (bind mounts) yourself, instead of having docker-run.sh doing it for you.
+
+The customizer script can be run to modify gl/bot config files.
 
 **Example**:
 

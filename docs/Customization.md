@@ -14,42 +14,47 @@ To build your own local images, check [docs/Build.md](docs/Build.md)
 
 ## glftpd
 
-Glftpd image comes in two flavors: a basic ftpd only setup or a 'full' install. The 'full' image adds zs and bot components (build with `INSTALL_ZS=1` `INSTALL_BOT=1`)
+The image comes in two flavors: a basic ftpd only setup or a 'full' install. The 'full' image adds zs and bot components (build with `INSTALL_ZS=1` `INSTALL_BOT=1`)
 
 - base: debian 12, x64 only
-- size: ~125mb (multi stage with conditionals)
+- size: ~125mb or ~200mb for 'full' (multi stage with conditionals)
 - init: xinetd starts glftpd
 - logs: xinetd, syslog and bot's partyline goto stdout
 - view logs with `docker logs glftpd`
 
 ## webui
 
-Shitty web interface :)
+_aka shitty web interface :)_
 
-Runs in 'docker mode' to manage glftpd container, see [glftpd-webui](https://github.com/silv3rr/glftpd-webui)
+Connects to glftpd container to manage it, gl userdb and show online users. Runs in a separate container. Building with `INSTALL_WEBUI=1` sets label to auto start on  `./docker-run.sh` (`WEBUI=1`).
 
-## Customizer
+For more info, see [glftpd-webui](https://github.com/silv3rr/glftpd-webui)
 
-A script called `customizer.sh` is called by `docker-run.sh` which sets up mounts, glftpd.conf, userdb and sitebot.
+# Customizer script
 
-## Components
+A shell script called `customizer.sh` is called by `docker-run.sh` which sets up mounts, glftpd.conf, userdb and sitebot.
 
-Addons/plugins
+# Components
 
-Check labels to see if zs or bot are enabled
+_aka addons/plugins_
+
+Check labels to see if zs, bot webui or are enabled:
 
 `docker image inspect --format='{{ index .Config.Labels "gl.sitebot.setup" }}' docker-glftpd`
+
 `docker image inspect --format='{{ index .Config.Labels "gl.zipscript.setup" }}' docker-glftpd`
 
-### ZS
+`docker image inspect --format='{{ index .Config.Labels "gl.web.setup" }}' docker-glftpd`
+
+## ZS
 
 Adds pzs-ng. Configured by editing 'etc/pzs-ng/zsconfig.h' as usual (needs image rebuild to recompile after changing). Requires an image that's build with `INSTALL_ZS=1`.
 
-### Bot
+## Bot
 
 Adds optional sitebot which will listen on port 3333. Login to partyline using telnet and default user/pass `shit/EatSh1t`. Needs irc server set in 'glftpd/sitebot/eggdrop.conf' (use docker-run.sh) and `.+chan #yourchan` from partyline. ngBot can be changed in 'glftpd/sitebot/pzs-ng/ngBot.conf'. Requires image build with `INSTALL_BOT=1`.
 
-### Third-party scripts
+## Third-party scripts
 
 Executable \*.sh scripts in 'entrypoint.d' dir will run on container start.
 
@@ -61,9 +66,7 @@ These can be combined to put for example a custom ngBot zs theme in 'custom' dir
 
 **Examples:**
 
-Copy bot themes: `entrypoint.d/bot_theme.sh`
-
-(cp silver.zst to ./custom dir)
+Copy bot themes: `entrypoint.d/bot_theme.sh`  (_silver.zst to ./custom dir_)
 
 ```
 #!/bin/sh

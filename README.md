@@ -4,13 +4,13 @@
 
 Dockerized [glftpd](https://glftpd.io) for all
 
-Optionally adds [pzs-ng](https://pzs-ng.eu) and included [Web UI](#WebUI)
+Optionally adds [pzs-ng](https://pzs-ng.eu) and [Web UI](#WebUI)
 
 GitHub container registry: [docker-glftpd](https://github.com/users/silv3rr/packages/container/package/docker-glftpd)
 
 ## Quick Start
 
-Usage: `docker run ghcr.io/silv3rr/docker-glftpd`
+Usage: `./docker-run.sh` or `docker run ghcr.io/silv3rr/docker-glftpd`
 
 Without changing anything, this gets a (temp) ftp up and running. Good for testing.
 
@@ -82,14 +82,7 @@ GLFTPD_CONF=1 GLFTPD_PERM_UDB=1 GLFTPD_SITE=1 ./docker-run.sh
 
 Wrapper script to (re)build images that can be used for local images besides the prebuild images from github registry.
 
-**Example**:
-
-```
-# build with web interface, pzs-ng and bot:
-INSTALL_WEBUI=1 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh; ./docker-run.sh
-```
-
-To update glftpd when there's a new glftpd version out (come December), change `GLFTPD_URL` and `GLFTPD_SHA` in docker-build.sh and rerun script.
+See [docs/Build.md](docs/Build.md)
 
 ## Compose
 
@@ -97,9 +90,9 @@ What about docker compose you ask? Sure, just run `docker compose up --detach`. 
 
 ## WebUI
 
-A web interface can optionally be installed as a bonus. Can be used to manage glftpd and bot etc from the comfort of your browser.. it's quite the prize.
+A web interface can optionally be installed as a bonus. This container an be used to manage glftpd and bot etc from the comfort of your browser.. it's quite the prize.
 
-Start: `docker run ghcr.io/silv3rr/docker-glftpd-web`
+Start: `WEBUI=1 ./docker-run.sh` or `docker run ghcr.io/silv3rr/docker-glftpd-web`
 
 Open url: https://your.ip:4444 and login: `shit/EatSh1t`  (basic web auth).
 
@@ -113,7 +106,7 @@ See [docs/Files.md](docs/Files.md) for directory structure.
 
 - why would you use this? uhh i dunno, cuz ur too stupid to setup gl urself?! :P
 - why does the web interface suck? .. it was originally named SHIT...
-- will it run on windows/macos/k8s? no idea, probably.. try it. podman? probably not
+- will it run on windows, macos or k8s? no idea, probably.. try it. podman? probably not
 - hashgen doesnt work? try recompiling: `gcc -o hashgen hashgen.c -lcrypto -lcrypt`
 - the bot doesnt start? check owner/perms of sitebot files
 - why bind mounts? if you want volumes instead .. change `type` in docker-run.sh / docker-compose.yml
