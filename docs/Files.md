@@ -12,6 +12,7 @@
 | bin/gltool.sh                      | handles user/group mgmt for webui   |           |
 | bin/hashgen.c                      | generates gl passwd hash            |           |
 | bin/passwd.sh                      |                                     |           |
+| bin/labels.sh                      |                                     |           |
 | test/*.sh                          | test ftp using lftp                 |           |
 |||
 | **Config templates** ||
@@ -35,6 +36,6 @@
 | entrypoint.d/*.sh                  | custom commands                     |           |
 | custom                             | custom files                        |           |
 |||
-| **Web** ||
+| **Web** | _moved to own repo_|W
 |                                    | nginx cfg, html, css and js for webui             |           |
 |||

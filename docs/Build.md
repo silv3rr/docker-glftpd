@@ -21,4 +21,4 @@ After build, `docker-run.sh` should auto detect the new local image.
 
 To update glftpd when there's a new glftpd version out (come December), change `GLFTPD_URL` and `GLFTPD_SHA` in docker-build.sh and rerun script.
 
-For all available build args, see comments inside [/docker-build.sh](/docker-build.sh).
+For defaults, current and all available build args: see settings/comments in [docker-build.sh](/docker-build.sh) and [docs/Variables.md](docs/Variables.md).

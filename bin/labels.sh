@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 CONTAINER="${1:-docker-glftpd}"
 docker image inspect --format='{{ index .Config.Labels "gl.sitebot.setup" }}' "$CONTAINER"

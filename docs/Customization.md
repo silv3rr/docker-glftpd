@@ -46,6 +46,8 @@ Check labels to see if zs, bot webui or are enabled:
 
 `docker image inspect --format='{{ index .Config.Labels "gl.web.setup" }}' docker-glftpd`
 
+or: `bin/labels.sh`
+
 ## ZS
 
 Adds pzs-ng. Configured by editing 'etc/pzs-ng/zsconfig.h' as usual (needs image rebuild to recompile after changing). Requires an image that's build with `INSTALL_ZS=1`.

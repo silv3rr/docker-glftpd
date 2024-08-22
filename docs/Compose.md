@@ -13,7 +13,7 @@ The customizer script can be run to modify gl/bot config files.
 
 ```
 # run 'full' permanent glftpd with compose
-# ( first set volumes, ports and args etc in yml )
+# ( first set volumes, ports and args etc in docker-compose.yml )
 
 GLFTPD_PERM_UDB=1 GLFTPD_CONF=1 GLFTPD_SITE=1 ZS_STATUS=1 BOT_STATUS=1 \
 IRC_SERVERS="irc.efnet.org:6667 irc2.example.org:6697" IRC_CHANNELS="#pzs #pzs-staff" \

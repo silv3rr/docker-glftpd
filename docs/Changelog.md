@@ -6,7 +6,7 @@
 
 moved files to /bin /etc
 
-moved web to own glftpd-gui repo
+moved web to own [glftpd-gui](https://github.com/silv3rr/glftpd-webui) repo
 
 - added: gltool
 - added: custom commands
