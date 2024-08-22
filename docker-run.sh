@@ -30,27 +30,21 @@
 ###################################################################   ####  # ##
 
 #DEBUG=0
-
 GLDIR="./glftpd"
 GLFTPD=1
-
 #WEBUI=0
 #WEBUI_LOCAL=1
 #WEBUI_AUTH_MODE="basic"
 #NETWORK="host"
-
 DOCKER_REGISTRY="ghcr.io/silv3rr"
 DOCKER_IMAGE_GLFTPD="docker-glftpd"
-DOCKER_IMAGE_WEBUI="docker-glftpd-web"
+DOCKER_IMAGE_WEBUI="docker-glftpd-web:latest"
 DOCKER_TAGS="full latest"
 
+SCRIPTDIR="$(dirname "$0")"
 GLFTPD_ARGS+="$*"
 WEBUI_ARGS+="$*"
-
 REMOVE_CT=1
-SCRIPTDIR="$(dirname "$0")"
-
-USE_FULL=1
 
 # check existing images. if we already have 'full' tag, keep using it
 for t in $DOCKER_TAGS; do
@@ -94,7 +88,7 @@ if [ -s "$SCRIPTDIR/customizer.sh" ]; then
   IRC_SERVERS=$IRC_SERVERS IRC_CHANNELS=$IRC_CHANNELS \
   "$SCRIPTDIR/customizer.sh"
 else
-  echo "! Skipping custom config, 'customizer.sh' not found"
+  echo "Skipping custom config, 'customizer.sh' not found"
 fi
 
 echo "----------------------------------------------"
