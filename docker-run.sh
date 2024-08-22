@@ -49,6 +49,25 @@ WEBUI_ARGS+="$*"
 REMOVE_CT=1
 SCRIPTDIR="$(dirname "$0")"
 
+LOCAL_GLFTPD_IMAGE=$(
+  docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE_GLFTPD"
+)
+LOCAL_FULL_GLFTPD_IMAGE=$(
+  docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
+)
+
+# check if we already have 'full' tagged image and keep using it if we do
+if [ -n "$LOCAL_FULL_GLFTPD_IMAGE" ]; then
+  DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD}:full"
+else
+  REGISTRY_FULL_GLFTPD_IMAGE=$(
+    docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
+  )
+  if [ -n "$REGISTRY_FULL_GLFTPD_IMAGE" ] || [ "${USE_FULL:-0}" -eq 1 ]; then
+    DOCKER_IMAGE_GLFTPD="${REGISTRY_FULL_GLFTPD_IMAGE}:full"
+  fi
+fi
+
 # get external/public ip
 if [ -z "$IP_ADDR" ]; then
   GET_IP="$( ip route get "$(ip route show 0.0.0.0/0 | grep -oP 'via \K\S+')" | grep -oP 'src \K\S+' )"
@@ -195,8 +214,6 @@ fi
 
 # remove existing container(s) which use local and/or registry images
 
-#set -x
-
 REGEX_GLFTPD="(glftpd| ${DOCKER_IMAGE_GLFTPD:-'docker-glftpd'}|${DOCKER_REGISTRY}/docker-glftpd)$"
 REGEX_WEBUI="(glftpd-web| ${DOCKER_IMAGE_WEBUI:-'docker-glftpd-web'})$"
 
@@ -228,27 +245,12 @@ fi
 
 # shellcheck disable=SC2086
 if [ "${GLFTPD:-1}" -eq 1 ]; then
-  LOCAL_GLFTPD_IMAGE=$(
-    docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE_GLFTPD"
-  )
-  LOCAL_FULL_GLFTPD_IMAGE=$(
-    docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-  )
   if [ -n "$LOCAL_GLFTPD_IMAGE" ] && [ "${USE_FULL:-0}" -eq 0 ]; then
     echo "* Found local image 'docker-glftpd'"
   elif [ -n "$LOCAL_FULL_GLFTPD_IMAGE" ]; then
-    DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
     echo "* Using full docker image ${LOCAL_FULL_GLFTPD_IMAGE:-""})"
   else
-    # check if we already have 'full' tagged image, then keep using it
-    REGISTRY_FULL_GLFTPD_IMAGE=$(
-      docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-    )
-    if [ -n "$REGISTRY_FULL_GLFTPD_IMAGE" ] || [ "${USE_FULL:-0}" -eq 1 ]; then
-      DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-    fi
-    echo "* Pulling image '${DOCKER_IMAGE_GLFTPD}' from registry '$DOCKER_REGISTRY'"
-    DOCKER_IMAGE_GLFTPD="${DOCKER_REGISTRY}/$DOCKER_IMAGE_GLFTPD"
+    echo "* Pulling image from registry '${DOCKER_IMAGE_GLFTPD}'"
     docker pull "$DOCKER_IMAGE_GLFTPD"
   fi
   if [ -n "$DOCKER_IMAGE_GLFTPD" ]; then
@@ -261,7 +263,10 @@ if [ "${GLFTPD:-1}" -eq 1 ]; then
       --network "${NETWORK:-bridge}" \
       --workdir /glftpd \
       $DOCKER_IMAGE_GLFTPD
-    echo "* For logs run 'docker logs glftpd'"
+      echo "* For logs run 'docker logs glftpd'"
+  else
+    echo "! Docker image not found"
+    exit 1
   fi
 fi
 
@@ -287,8 +292,11 @@ if [ "${WEBUI:-0}" -eq 1 ]; then
       --name glftpd-web \
       --network "${NETWORK:-bridge}" \
       $DOCKER_IMAGE_WEBUI
+    echo "* For logs run 'docker logs glftpd-web'"
+  else
+    echo "! Docker image not found"
+    exit 1
   fi
-  echo "* For logs run 'docker logs glftpd-web'"
 fi
 
 echo "* All done."
