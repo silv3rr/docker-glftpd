@@ -91,9 +91,11 @@ if [ "${DEBUG:-0}" -eq 0 ]; then
   WEBUI_ARGS+=" --detach "
 fi
 
+#WEBUI_ARGS+=" --add-host glftpd:127.0.0.1 "
+
 if [ -z "$NETWORK" ]; then
   DOCKER_NETWORK="$(docker network ls --format '{{.Name}}' --filter 'Name=shit')"
-  if [ -n "$DOCKER_NETWORK" ] && [ "$DOCKER_NETWORK" = "shit" ];  then
+  if [ -n "$DOCKER_NETWORK" ] && [ "$DOCKER_NETWORK" = "shit" ]; then
     NETWORK="shit"
   fi
 fi
