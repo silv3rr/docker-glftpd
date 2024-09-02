@@ -1,6 +1,8 @@
 # Docker run
 
-`docker-run.sh` sets up most common stuff:
+`docker-run.sh`
+
+sets up most common stuff:
 
 - glftpd ip/ports/nat (or autodetect)
 - if zs component is enabed: add required pzs-ng settings to glftpd.conf
@@ -18,7 +20,7 @@ The script uses bind mounts with relative paths, e.g.
 
 After config it will check for a local image to start first or if it's not available it'll get the image from github registry.
 
-The container name will be `glftpd` with same hostname, and a `glftpd-web` container using `web` as hostname. Both use the 'shit' network. By default containers get removed when stopped.
+The container name will be `glftpd` with same hostname, and a `glftpd-web` container using `glftpd-web` as hostname. Both use the 'shit' network. By default containers get removed when stopped.
 
 Runs `docker run --rm --detach --name glftpd --hostname glftpd --publish 1337:1337 --workdir /glftpd docker-glftpd:latest` and any options
 
