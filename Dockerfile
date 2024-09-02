@@ -63,7 +63,7 @@ ARG DEBCONF_NOWARNINGS="yes"
 ARG PZS_URL=https://github.com/glftpd/pzs-ng/archive/master.tar.gz
 WORKDIR /build
 COPY --from=deb_base / /
-COPY etc/pzs-ng/zsconfig.h pzs-ng-master/zipscript/conf/zsconfig.h
+COPY etc/pzs-ng/zsconfig.h  pzs-ng-master/zipscript/conf/zsconfig.h
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3003,DL3008
 RUN mkdir /glftpd && \

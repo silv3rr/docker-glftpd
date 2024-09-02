@@ -24,7 +24,7 @@ echo "* Adding customizations to config files"
 for i in glftpd/glftpd.conf glftpd/sitebot/eggdrop.conf glftpd/sitebot/pzs-ng/ngBot.conf; do
   if [ -d "$i" ]; then
     rmdir "$i" 2>/dev/null || {
-      echo "WARNING: unable to cleanup \"$i\", which is a directory instead of a file"
+      echo "! WARNING: unable to cleanup \"$i\", which is a directory instead of a file"
     }
   fi
 done
@@ -60,7 +60,7 @@ fi
 # glftpd configuration
 
 if [ -n "$GLFTPD_PORT" ] && ! [[ $GLFTPD_PORT =~ ^[0-9]{1,5}$ ]]; then
-  echo "WARNING: listen port incorrectly set \"$GLFTPD_PORT\", using default \"1337\"..."
+  echo "! WARNING: listen port incorrectly set \"$GLFTPD_PORT\", using default \"1337\"..."
   GLFTPD_PORT=1337
 fi
 
@@ -85,7 +85,7 @@ if [ "${ZS_STATUS:-0}" -eq 1 ]; then
 _EOF_
     fi
   else
-    echo "WARNING: could not add pzs-ng settings to glftpd.conf"
+    echo "! WARNING: could not add pzs-ng settings to glftpd.conf"
   fi
 fi
 
@@ -97,18 +97,18 @@ if [ "${GLFTPD_CONF:-0}" -eq 1 ]; then
   fi
   if [ -n "$GLFTPD_PASV_PORTS" ] && ! [[ "$GLFTPD_PASV_PORTS" =~ ^[0-9]{1,5}-[0-9]{1,5}$ ]]; then
     GLFTPD_PASV_PORTS="5000-5100"
-    echo "WARNING: 'pasv_ports' are set incorrectly \"$GLFTPD_PASV_PORTS\", using defaults \"$GLFTPD_PASV_PORTS\"..."
+    echo "! WARNING: 'pasv_ports' are set incorrectly \"$GLFTPD_PASV_PORTS\", using defaults \"$GLFTPD_PASV_PORTS\"..."
   fi
   if [ -n "$GLFTPD_PASV_ADDR" ] && ! [[ $GLFTPD_PASV_ADDR =~ ^[0-9\.]{7,}$ ]]; then
-    echo "WARNING: 'pasv_addr' incorrectly set \"$GLFTPD_PASV_ADDR\", using autodetected \"$IP_ADDR\" ${NAT:+(NAT)}..."
+    echo "! WARNING: 'pasv_addr' incorrectly set \"$GLFTPD_PASV_ADDR\", using autodetected \"$IP_ADDR\" ${NAT:+(NAT)}..."
   fi
   if ! grep -Eq "^pasv_addr.*" glftpd/glftpd.conf; then
     echo "pasv_addr ${GLFTPD_PASV_ADDR:-$IP_ADDR}${NAT:+ $NAT}" >>glftpd/glftpd.conf || \
-      { echo "ERROR: could not write 'pasv_addr' to glftpd/glftpd.conf"; ERR=$((ERR+1)); }
+      { echo "! ERROR: could not write 'pasv_addr' to glftpd/glftpd.conf"; ERR=$((ERR+1)); }
   fi
   if ! grep -Eq "^pasv_ports.*" glftpd/glftpd.conf; then
     echo "pasv_ports ${GLFTPD_PASV_PORTS:-5000-5100}" >>glftpd/glftpd.conf || 
-      { echo "ERROR: could not write 'pasv_ports' to glftpd/glftpd.conf"; ERR=$((ERR+1)); }
+      { echo "! ERROR: could not write 'pasv_ports' to glftpd/glftpd.conf"; ERR=$((ERR+1)); }
   fi
   if [ "${ERR:0}" -eq 0 ]; then
     echo "* Using ip '${GLFTPD_PASV_ADDR:-$IP_ADDR}' (NAT=${NAT:-0}) and pasv ports '${GLFTPD_PASV_PORTS:-5000-5100}'"
@@ -117,17 +117,11 @@ fi
 
 # create userdb
 
-#if [ -n "$GLFTPD_PASSWD" ]; then
-#  bin/hashgen || gcc -o bin/hashgen bin/hashgen.c -lcrypto -lcrypt &&
-#    bin/hashgen glftpd "$GLFTPD_PASSWD" >glftpd/etc/passwd ||
-#    echo "Failed to generate hash, password not changed "
-#fi
-
 if [ "${GLFTPD_PERM_UDB:-0}" -eq 1 ]; then
   mkdir -v -p glftpd
   if [ ! -d glftpd/etc ] && [ ! -d glftpd/ftp-data/users ] && [ ! -d glftpd/ftp-data/groups ]; then
     echo "* Creating new permanent glftpd userdb in '$(pwd)/glftpd'..."
-    tar -C glftpd -xvf etc/glftpd/userdb-skel.tar.gz || echo "WARNING: could not create empty userdb"
+    tar -C glftpd -xvf etc/glftpd/userdb-skel.tar.gz || echo "! WARNING: could not create empty userdb"
   else
     echo "* Checking exising glftpd userdb in '$(pwd)/glftpd'..."
     for i in etc ftp-data/users ftp-data/groups; do
@@ -166,7 +160,7 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
       gunzip -c -v etc/pzs-ng/ngBot.conf.gz >glftpd/sitebot/pzs-ng/ngBot.conf
     }
     if [ ! -d glftpd/sitebot/pzs-ng/modules ] && [ ! -d glftpd/sitebot/pzs-ng/plugins ] && [ ! -d glftpd/sitebot/pzs-ng/themes ]; then
-      tar -C glftpd/sitebot/pzs-ng -xvf etc/pzs-ng/ngBot-skel.tar.gz || echo "WARNING: could not create ngBot dirs"
+      tar -C glftpd/sitebot/pzs-ng -xvf etc/pzs-ng/ngBot-skel.tar.gz || echo "! WARNING: could not create ngBot dirs"
     fi
   fi
   if [ -n "$IRC_SERVERS" ]; then
@@ -180,7 +174,7 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
     done
   fi
   # userfile is already created in container, but not in local glftpd/sitebot dir
-  test -s  glftpd/sitebot/LamestBot.user || {
+  test -s glftpd/sitebot/LamestBot.user || {
     echo "* Create new eggdrop userfile..."
     cat <<-'_EOF_' >glftpd/sitebot/LamestBot.user
 	#4v: eggdrop v1.8.4 -- Lamestbot -- written Mon Jan  1 13:00:00 1999
@@ -204,12 +198,12 @@ _EOF_
           "flood-chan 15:60 flood-ctcp 3:60 flood-join 5:60 flood-kick 3:10 flood-deop 3:10 flood-nick 5:60 aop-delay 5:30 ban-type 3 ban-time 120 exempt-time 60 invite-time 60" \
           "-enforcebans +dynamicbans +userbans -autoop -autohalfop -bitch +greet +protectops -protecthalfops -protectfriends +dontkickops -statuslog -revenge" \
           "-revengebot-autovoice  -secret +shared +cycle -seen -inactive +dynamicexempts +userexempts +dynamicinvites +userinvites -nodesynch -static }" \
-          >>glftpd/sitebot/LamestBot.chan || { echo "ERROR: could not write to eggdrop chanfile"; }
+          >>glftpd/sitebot/LamestBot.chan || { echo "! ERROR: could not write to eggdrop chanfile"; }
       fi
     done
   }
   if grep -Eiq "you.need.to.change.this:6667" glftpd/sitebot/eggdrop.conf; then
-    echo "WARNING: bot has no irc server(s) configured in eggdrop.conf"
+    echo "* NOTICE: bot has no irc server(s) configured in eggdrop.conf"
   fi
 fi
 
