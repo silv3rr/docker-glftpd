@@ -33,13 +33,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build basic glftpd image
         run: INSTALL_WEBUI=0 INSTALL_ZS=0 INSTALL_BOT=0 ./docker-build.sh
-      - name: Push images
-        run: |
+      - name: Push image
+        run:
           docker tag docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:latest
           docker push ghcr.io/silv3rr/docker-glftpd:latest
       - name: Build full glftpd image
         run: INSTALL_WEBUI=1 INSTALL_ZS=1 INSTALL_BOT=1 ./docker-build.sh
       - name: Push full image
         run: |
-          docker tag docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:full
+          docker tag docker-glftpd:full ghcr.io/silv3rr/docker-glftpd:full
           docker push ghcr.io/silv3rr/docker-glftpd:full
