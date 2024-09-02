@@ -27,7 +27,6 @@ BUILD_GLFTPD=1
 #INSTALL_WEBUI=0
 
 # set glftpd version
-#GLFTPD_URL="${GLFTPD_URL:-"https://mirror.glftpd.nl.eu.org/glftpd-LNX-2.14a_3.0.12_x64.tgz"}"
 GLFTPD_URL="${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"}"
 GLFTPD_SHA="${GLFTPD_SHA:-"981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad"}"
 GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*/\1/' )"
@@ -41,11 +40,15 @@ echo "----------------------------------------------"
 if [ "${BUILD_GLFTPD:-1}" -eq 1 ]; then
   echo "Build image: 'docker-glftpd'"
   echo "* you can ignore any cache errors"
+  TAG="latest"
+  if [ "${INSTALL_WEBUI:-0}" -eq 1 ] && [ "${INSTALL_ZS:-0}" -eq 1 ] && [ "${INSTALL_BOT:-0}" -eq 1 ]; then
+    TAG="full"
+  fi
   # shellcheck disable=SC2086
   docker build \
     $ARGS \
-    --cache-from "docker-glftpd:latest" \
-    --tag "docker-glftpd:latest" \
+    --cache-from "docker-glftpd:${TAG}" \
+    --tag "docker-glftpd:${TAG}" \
     --tag "docker-glftpd:${GLFTPD_VER:-2}" \
     --build-arg GLFTPD_URL="${GLFTPD_URL}" \
     --build-arg GLFTPD_SHA="${GLFTPD_SHA}" \
