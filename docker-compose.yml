@@ -44,14 +44,22 @@ services:
       # uncomment for pasv ports
       # - "5000-6000:5000-6000"
     ulimits: &glftpd_ulimits
-      nofile:
-        soft: 1024
-        hard: 1024
+      nofile: { soft: 1024, hard: 1024 }
     container_name: glftpd
     hostname: glftpd
     # environment:
 
+  glftpd-full:
+    profiles: [full]
+    image: ghcr.io/silv3rr/docker-glftpd:full
+    volumes: *glftpd_volumes
+    ports: *glftpd_ports
+    ulimits: *glftpd_ulimits
+    container_name: glftpd-full
+    hostname: glftpd
+
   web:
+    profiles: [full]
     image: ghcr.io/silv3rr/docker-glftpd-web:latest
     volumes: &web_volumes
       - /var/run/docker.sock:/var/run/docker.sock
@@ -59,17 +67,13 @@ services:
       - ./glftpd/sitebot/eggdrop.conf:/app/glftpd/sitebot/eggdrop.conf
       - ./glftpd/sitebot/pzs-ng/ngBot.conf:/app/glftpd/sitebot/pzs-ng/ngBot.conf
       - ./glftpd/site:/app/glftpd/site
-      # systemd from host
-      # - /run:/host-run
     ports: &web_ports
       - 4444:443
     ulimits: &web_ulimits
-      nofile:
-        soft: 1024
-        hard: 1024
+      nofile: { soft: 1024, hard: 1024 }
     container_name: glftpd-web
     hostname: glftpd-web
-    depends_on: [glftpd]
+    depends_on: [glftpd-full]
 
 ###################################################################   ####  # ##
 # local build
@@ -77,23 +81,43 @@ services:
 
   local-glftpd:
     profiles: [local]
-    image: docker-glftpd:latest
     build:
       context: .
       cache_from: [docker-glftpd:latest]
       dockerfile: Dockerfile
       args:
+        # if glftpd.io is down, uncomment to use mirror
         # - GLFTPD_URL=https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz
         - GLFTPD_SHA=981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad
         - INSTALL_ZS=1
         - INSTALL_BOT=1
         - INSTALL_WEBUI=1
+    image: docker-glftpd:latest
     volumes: *glftpd_volumes
     ports: *glftpd_ports
     ulimits: *glftpd_ulimits
     container_name: glftpd
     hostname: glftpd
-    # environment:
+
+  local-glftpd-full:
+    profiles: [local]
+    build:
+      context: .
+      cache_from: [docker-glftpd:full]
+      dockerfile: Dockerfile
+      args:
+        # if glftpd.io is down, uncomment to use mirror
+        # - GLFTPD_URL=https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz
+        - GLFTPD_SHA=981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad
+        - INSTALL_ZS=1
+        - INSTALL_BOT=1
+        - INSTALL_WEBUI=1
+    image: docker-glftpd:full
+    volumes: *glftpd_volumes
+    ports: *glftpd_ports
+    ulimits: *glftpd_ulimits
+    container_name: glftpd
+    hostname: glftpd
 
   local-web:
     profiles: [local]
@@ -110,13 +134,12 @@ services:
       #   - WEBUI_AUTH_PASS=Othersh1ttyPass
     # uncomment to use host instead of bridge
     # network_mode: host
-    ##privileged: true
     volumes: *web_volumes
     ports: *web_ports
     ulimits: *web_ulimits
     container_name: glftpd-web
     hostname: glftpd-web
-    depends_on: [local-glftpd]
+    depends_on: [local-glftpd-full]
     # uncomment to change authmode of the fly (basic|glftpd|both|none)
     # environment:
     #   - WEBUI_AUTH_MODE=glftpd
