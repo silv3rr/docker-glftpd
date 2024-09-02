@@ -40,8 +40,9 @@ GLFTPD=1
 #NETWORK="host"
 
 DOCKER_REGISTRY="ghcr.io/silv3rr"
-DOCKER_IMAGE_GLFTPD="docker-glftpd:latest"
-DOCKER_IMAGE_WEBUI="docker-glftpd-web:latest"
+DOCKER_IMAGE_GLFTPD="docker-glftpd"
+DOCKER_IMAGE_WEBUI="docker-glftpd-web"
+DOCKER_TAGS="full latest"
 
 GLFTPD_ARGS+="$*"
 WEBUI_ARGS+="$*"
@@ -49,23 +50,20 @@ WEBUI_ARGS+="$*"
 REMOVE_CT=1
 SCRIPTDIR="$(dirname "$0")"
 
-LOCAL_GLFTPD_IMAGE=$(
-  docker image ls --format='{{.Repository}}' --filter reference="$DOCKER_IMAGE_GLFTPD"
-)
-LOCAL_FULL_GLFTPD_IMAGE=$(
-  docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-)
+USE_FULL=1
 
-# check if we already have 'full' tagged image and keep using it if we do
-if [ -n "$LOCAL_FULL_GLFTPD_IMAGE" ]; then
-  DOCKER_IMAGE_GLFTPD="${DOCKER_IMAGE_GLFTPD}:full"
-else
-  REGISTRY_FULL_GLFTPD_IMAGE=$(
-    docker image ls --format='{{.Repository}}' --filter reference="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD/%:latest/:full}"
-  )
-  if [ -n "$REGISTRY_FULL_GLFTPD_IMAGE" ] || [ "${USE_FULL:-0}" -eq 1 ]; then
-    DOCKER_IMAGE_GLFTPD="${REGISTRY_FULL_GLFTPD_IMAGE}:full"
+# check existing images. if we already have 'full' tag, keep using it
+for t in $DOCKER_TAGS; do
+  if [ -z "$GLFTPD_IMAGE" ]; then
+    for i in "${DOCKER_IMAGE_GLFTPD}:$t" "${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}:$t"; do
+      GLFTPD_IMAGE="$(docker image ls --format='{{.Repository}}{{if .Tag}}:{{.Tag}}{{end}}' --filter reference="$i")"
+      TAG="$t"
+      break
+    done
   fi
+done
+if [ -z "$GLFTPD_IMAGE" ] && [ "${USE_FULL:-0}" -eq 1 ]; then
+  GLFTPD_IMAGE="${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}:full"
 fi
 
 # get external/public ip
@@ -135,7 +133,7 @@ WEBUI_ARGS+=" --ulimit nofile=1024:1024 "
 if [ "${GLFTPD_CONF:-0}" -eq 1 ] || [ "${ZS_STATUS:-0}" -eq 1 ]; then
   REMOVE_CT=0
   if [ -d glftpd/glftpd.conf ]; then
-    rmdir glftpd/glftpd.conf 2>/dev/null || { echo "ERROR: \"glftpd.conf\" is a directory, remove it manually"; }
+    rmdir glftpd/glftpd.conf 2>/dev/null || { echo "! ERROR: \"glftpd.conf\" is a directory, remove it manually"; }
   fi
   if [ -f glftpd/glftpd.conf ]; then
     GLFTPD_ARGS+=" --mount type=bind,src=${GLDIR:-./glftpd}/glftpd.conf,dst=/glftpd/glftpd.conf "
@@ -177,7 +175,7 @@ if [ "${BOT_STATUS:-0}" -eq 1 ]; then
   GLFTPD_ARGS+=" --publish ${IP_ADDR}:3333:3333 "
   for i in glftpd/sitebot/eggdrop.conf glftpd/sitebot/pzs-ng/ngBot.conf ; do
     if [ -d "$i" ]; then
-      rmdir "$i" 2>/dev/null || { echo "ERROR: \"$i\" is a directory, remove it manually"; }
+      rmdir "$i" 2>/dev/null || { echo "! ERROR: \"$i\" is a directory, remove it manually"; }
     fi
   done
   if [ -f glftpd/sitebot/eggdrop.conf ]; then
@@ -214,7 +212,13 @@ fi
 
 # remove existing container(s) which use local and/or registry images
 
-REGEX_GLFTPD="(glftpd| ${DOCKER_IMAGE_GLFTPD:-'docker-glftpd'}|${DOCKER_REGISTRY}/docker-glftpd)$"
+for i in "${DOCKER_IMAGE_GLFTPD}" "${DOCKER_REGISTRY}/${DOCKER_IMAGE_GLFTPD}"; do
+  for j in $(docker image ls --format='{{.Repository}}' --filter reference="$i" | sort -u); do
+    REGEX_PAT_GLFTPD+=" ${j}|"
+  done
+done
+REGEX_GLFTPD="(glftpd|${REGEX_PAT_GLFTPD/%|/})$"
+
 REGEX_WEBUI="(glftpd-web| ${DOCKER_IMAGE_WEBUI:-'docker-glftpd-web'})$"
 
 if [ "${GLFTPD:-0}" -eq 1 ]; then
@@ -236,7 +240,7 @@ if [ -n "$REGEX" ]; then
       printf "* Removing existing container '%s'... " "$i"
       docker rm -f -v "$CONTAINER" 2>/dev/null
     else
-      echo "WARNING: container '$i' already exists, to remove it: 'FORCE=1 ./docker-run.sh'"
+      echo "! WARNING: container '$i' already exists, to remove it try: 'FORCE=1 ./docker-run.sh'"
     fi
   done
 fi
@@ -245,16 +249,14 @@ fi
 
 # shellcheck disable=SC2086
 if [ "${GLFTPD:-1}" -eq 1 ]; then
-  if [ -n "$LOCAL_GLFTPD_IMAGE" ] && [ "${USE_FULL:-0}" -eq 0 ]; then
-    echo "* Found local image 'docker-glftpd'"
-  elif [ -n "$LOCAL_FULL_GLFTPD_IMAGE" ]; then
-    echo "* Using full docker image ${LOCAL_FULL_GLFTPD_IMAGE:-""})"
+  if ! echo "$GLFTPD_IMAGE" | grep -Eq "$DOCKER_REGISTRY"; then
+    echo "* Found local '${TAG}' image"
   else
-    echo "* Pulling image from registry '${DOCKER_IMAGE_GLFTPD}'"
-    docker pull "$DOCKER_IMAGE_GLFTPD"
+    echo "* Pulling '${TAG}' image from registry"
+    docker pull "$GLFTPD_IMAGE"
   fi
-  if [ -n "$DOCKER_IMAGE_GLFTPD" ]; then
-    printf "* Docker run '%s'... " "$DOCKER_IMAGE_GLFTPD"
+  if [ -n "$GLFTPD_IMAGE" ]; then
+    printf "* Docker run '%s'... " "$GLFTPD_IMAGE"
     docker run \
       $GLFTPD_ARGS \
       --name glftpd \
