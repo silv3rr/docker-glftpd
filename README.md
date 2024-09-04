@@ -85,6 +85,8 @@ See [docs/Variables.md](docs/Variables.md) for all available options.
 
 ## WebUI
 
+[![click to enlarge](docs/webui_small.png)](docs/webui.png)
+
 A web interface can optionally be installed as a bonus. This container an be used to manage glftpd and bot etc from the comfort of your browser.. it's quite the prize.
 
 Start: `WEBUI=1 ./docker-run.sh` or `docker run ghcr.io/silv3rr/docker-glftpd-web`
