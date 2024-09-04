@@ -2,7 +2,7 @@
 
 [![Docker](https://github.com/silv3rr/docker-glftpd/actions/workflows/docker.yml/badge.svg)](https://github.com/silv3rr/docker-glftpd/actions/workflows/docker.yml)
 
-Dockerized [glftpd](https://glftpd.io) for all
+Dockerized [glftpd](https://glftpd.io) for all 😎
 
 Optionally adds [pzs-ng](https://pzs-ng.eu) and [Web UI](#WebUI)
 
@@ -87,13 +87,13 @@ See [docs/Variables.md](docs/Variables.md) for all available options.
 
 [![click to enlarge](docs/webui_small.png)](docs/webui.png)
 
-A web interface can optionally be installed as a bonus. This container an be used to manage glftpd and bot etc from the comfort of your browser.. it's quite the prize.
+A web interface can optionally be installed as a bonus. This separate container can be used to manage glftpd and bot etc from the comfort of your browser.. it's quite the prize.
 
 Start: `WEBUI=1 ./docker-run.sh` or `docker run ghcr.io/silv3rr/docker-glftpd-web`
 
 Open url: https://your.ip:4444 and login: `shit/EatSh1t`  (basic web auth).
 
-For screenshots and more information see [github.com/silv3rr/glftpd-webui](https://github.com/silv3rr/glftpd-webui)
+For more screenshots and information see [github.com/silv3rr/glftpd-webui](https://github.com/silv3rr/glftpd-webui)
 
 ## Files
 
