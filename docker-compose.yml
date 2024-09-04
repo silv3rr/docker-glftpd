@@ -85,7 +85,7 @@ services:
       context: .
       cache_from: [docker-glftpd:latest]
       dockerfile: Dockerfile
-      args:
+      args: &glftpd_args
         # if glftpd.io is down, uncomment to use mirror
         # - GLFTPD_URL=https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz
         - GLFTPD_SHA=981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad
@@ -105,13 +105,7 @@ services:
       context: .
       cache_from: [docker-glftpd:full]
       dockerfile: Dockerfile
-      args:
-        # if glftpd.io is down, uncomment to use mirror
-        # - GLFTPD_URL=https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz
-        - GLFTPD_SHA=981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad
-        - INSTALL_ZS=1
-        - INSTALL_BOT=1
-        - INSTALL_WEBUI=1
+      args: *glftpd_args
     image: docker-glftpd:full
     volumes: *glftpd_volumes
     ports: *glftpd_ports
