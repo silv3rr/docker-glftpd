@@ -14,22 +14,22 @@ ARG DEBCONF_NOWARNINGS="yes"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN test -n "$http_proxy" && \
-      echo "Acquire::http::Proxy \"$http_proxy\";" | tee /etc/apt/apt.conf.d/01proxy; \
-    apt-get update && \
-    apt-get upgrade -y && \
-    apt-get -yq install --no-install-recommends \
-      xinetd \
-      openssl \
-      ca-certificates \
-      libssl3 \
-      libcrypt1 \
-      curl \
-      zip \
-      unzip \
-      busybox-syslogd \
-      gosu && \
-    rm -rf /etc/xinetd.d/* && \
-    gosu nobody true
+  echo "Acquire::http::Proxy \"$http_proxy\";" | tee /etc/apt/apt.conf.d/01proxy; \
+  apt-get update && \
+  apt-get upgrade -y && \
+  apt-get -yq install --no-install-recommends \
+    xinetd \
+    openssl \
+    ca-certificates \
+    libssl3 \
+    libcrypt1 \
+    curl \
+    zip \
+    unzip \
+    busybox-syslogd \
+    gosu && \
+  rm -rf /etc/xinetd.d/* && \
+  gosu nobody true
 
 # eggdrop (optional)
 
@@ -64,22 +64,27 @@ ARG PZS_URL=https://github.com/glftpd/pzs-ng/archive/master.tar.gz
 WORKDIR /build
 COPY --from=deb_base / /
 COPY etc/pzs-ng/zsconfig.h.gz pzs-ng-master/zipscript/conf/zsconfig.h.gz
+COPY src src
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3003,DL3008
 RUN mkdir /glftpd && \
-    if [ "${INSTALL_ZS:-0}" -eq 1 ]; then \
-      gunzip -v pzs-ng-master/zipscript/conf/zsconfig.h.gz; \
-      curl -sSL -L -O ${PZS_URL} && \
-      tar -xf master.tar.gz && \
-      ( cd pzs-ng-master && \
-            ./configure --enable-gl202-64 && \
-            make && \
-            make install ) && \
-      ( cd pzs-ng-master/sitebot && \
-        mkdir -p /glftpd/sitebot/pzs-ng/themes && \
-        cp -R ngBot.* plugins themes modules /glftpd/sitebot/pzs-ng/ && \
-        cp ngBot.conf.dist /glftpd/sitebot/pzs-ng/ngBot.conf ); \
-    fi
+  if [ "${INSTALL_ZS:-0}" -eq 1 ]; then \
+    gunzip -v pzs-ng-master/zipscript/conf/zsconfig.h.gz; \
+    PZS_TGZ="src/master.tar.gz"; \
+    if [ ! -s "$PZS_TGZ" ]; then \
+      PZS_TGZ="master.tar.gz" && \
+      curl -sSL -O "$PZS_URL"; \
+    fi ;\
+    tar -xf "$PZS_TGZ" && \
+    ( cd pzs-ng-master && \
+          ./configure --enable-gl202-64 && \
+          make && \
+          make install ) && \
+    ( cd pzs-ng-master/sitebot && \
+      mkdir -p /glftpd/sitebot/pzs-ng/themes && \
+      cp -R ngBot.* plugins themes modules /glftpd/sitebot/pzs-ng/ && \
+      cp ngBot.conf.dist /glftpd/sitebot/pzs-ng/ngBot.conf ); \
+  fi
 
 # install glftpd
 
@@ -104,6 +109,7 @@ WORKDIR /glftpd
 #COPY --chown=0:0 --from=build /glftpd/ftp-data/misc/who.* /glftpd/ftp-data/misc/banned_filelist.txt /glftpd/ftp-data/misc/
 #COPY --chown=0:0 --from=build /glftpd/ftp-data/pzs-ng /glftpd/ftp-data/pzs-ng
 #COPY --chown=0:0 --from=build /glftpd/sitebot/pzs-ng /glftpd/sitebot/pzs-ng
+COPY --chown=0:0 src src
 COPY --chown=0:0 bin/entrypoint.sh /
 COPY --chown=0:0 etc/xinetd.conf /etc/xinetd.conf
 COPY --chown=0:0 etc/xinetd.d/glftpd /etc/xinetd.d/glftpd
@@ -120,19 +126,20 @@ COPY --chown=0:0 bin/gotty bin/hashgen bin/passchk bin/pywho etc/pywho.conf bin/
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=SC2016,SC2028,DL3008
 RUN test -e /glftpd/bin/spy.conf && \
-    sed -i 's/^\(flask\|http\)_host = .*/\1_host = 0.0.0.0/' /glftpd/bin/spy.conf; \
-    curl -sSL -O "$GLFTPD_URL" && \
-    echo "$GLFTPD_SHA  $( basename $GLFTPD_URL )" | sha512sum -c && \
-    tar --strip-components=1 -C /glftpd -xf "$( basename $GLFTPD_URL )" >/dev/null && \
-    rm "$( basename $GLFTPD_URL )" && \
-    echo "glftpd   1337/tcp" >> /etc/services && \
-    ./libcopy.sh && \
-    ./create_server_key.sh glftpd && \
-    chmod 600 ftpd-ecdsa.pem && \
-    chown -R 0:0 /glftpd && \
-    mkdir -m 777 site && \
-    chmod +x /entrypoint.sh
-    # && \
-    #rm -rf /var/lib/apt/lists/* && \
-    #rm -rf /tmp/* /var/tmp/*
+  sed -i 's/^\(flask\|http\)_host = .*/\1_host = 0.0.0.0/' /glftpd/bin/spy.conf; \
+  GL_TGZ="$(find src -type f -name 'glftpd-LNX-*' -printf '%f\n' | sort | tail -1)"; \
+  if [ ! -s "$GL_TGZ" ]; then \
+    GL_TGZ="$( basename $GLFTPD_URL )" && \
+    curl -sSL -O "$GLFTPD_URL"; \
+  fi; \
+  echo "$GLFTPD_SHA  $GL_TGZ" | sha512sum -c && \
+  tar --strip-components=1 -C /glftpd -xf "$GL_TGZ" >/dev/null && \
+  rm -f "$GL_TGZ" src; \
+  echo "glftpd   1337/tcp" >> /etc/services && \
+  ./libcopy.sh && \
+  ./create_server_key.sh glftpd && \
+  chmod 600 ftpd-ecdsa.pem && \
+  chown -R 0:0 /glftpd && \
+  mkdir -m 777 site && \
+  chmod +x /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]

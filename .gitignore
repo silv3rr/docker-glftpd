@@ -1,8 +1,8 @@
 /glftpd
 /glftpd/
 /archive/
-bin/pyspy-*.sha512sum
-bin/pyspy-*.tar.gz
+src/pyspy-*.sha512sum
+src/pyspy-*.tar.gz
 .env
 *.bak
 *.crt
