@@ -101,5 +101,5 @@ fi
 
 Copy foo-pre and modify glftpd.conf: `entrypoint.d/foo-pre.sh`
 
-\<see [foo-pre.sh]([foo-pre.sh])\>
+> \<see [foo-pre.sh](../entrypoint.d/foo-pre.sh)\>
 
