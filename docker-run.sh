@@ -1,7 +1,7 @@
 #!/bin/bash
-
+VERSION=V4
 ################################## ################################   ####  # ##
-# >> DOCKER-RUN-GLFTPD-V3
+# >> DOCKER-RUN-GLFTPD
 ################################## ################################   ####  # ##
 #
 # ENVIRONMENT VARIABLES:
@@ -94,7 +94,7 @@ else
 fi
 
 echo "----------------------------------------------"
-echo "DOCKER-GLFTPD-RUN-V3"
+echo "DOCKER-GLFTPD-RUN-${VERSION}"
 echo "----------------------------------------------"
 
 # set runtime docker args

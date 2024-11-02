@@ -1,7 +1,7 @@
 #!/bin/bash
-
+VERSION=V4
 ################################## ################################   ####  # ##
-# >> DOCKER-BUILD-GLFTPD-V3
+# >> DOCKER-BUILD-GLFTPD
 ################################## ################################   ####  # ##
 #
 # BUILD-TIME VARIABLES:
@@ -34,7 +34,7 @@ GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*
 ARGS+="$*"
 
 echo "----------------------------------------------"
-echo "DOCKER-GLFTPD-BUILD-V3"
+echo "DOCKER-GLFTPD-BUILD-${VERSION}"
 echo "----------------------------------------------"
 
 if [ "${BUILD_GLFTPD:-1}" -eq 1 ]; then

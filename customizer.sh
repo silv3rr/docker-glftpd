@@ -1,5 +1,5 @@
 #!/bin/bash
-
+VERSION=V4
 ################################## ################################   ####  # ##
 # >> DOCKER-GLFTPD-CUSTOMIZER
 ################################## ################################   ####  # ##
@@ -14,7 +14,7 @@
 RESET=1
 
 echo "----------------------------------------------"
-echo "DOCKER-GLFTPD-CUSTOMIZER-V3"
+echo "DOCKER-GLFTPD-CUSTOMIZER-${VERSION}"
 echo "----------------------------------------------"
 
 echo "* Adding customizations to config files"

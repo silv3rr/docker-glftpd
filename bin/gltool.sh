@@ -960,7 +960,8 @@ func_delflag() {
   done
   sed "s/^FLAGS .*/FLAGS $NEW_FLAGS/" "$USERFILE" > "$USERFILE.tmp" || { echo "ERROR: changing flags"; exit 1; }
   func_update_userfile
-  func_logmsg "deleted flags \"$FLAGS\" from \"$USERNAME\""
+  #func_logmsg "deleted flags \"$FLAGS\" from \"$USERNAME\""
+  func_logmsg "changed flags to \"$NEW_FLAGS\" for \"$USERNAME\""
 }
 
 # ----------------------------------------------

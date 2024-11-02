@@ -1,10 +1,10 @@
 ---
 ###################################################################   ####  # ##
-# >> DOCKER-COMPOSE-GLFTPD-V3
+# >> DOCKER-COMPOSE-GLFTPD-V4
 ###################################################################   ####  # ##
 # build args: <see docker-build.sh comments>
 # environment options: <see docker-run.sh comments>
-#
+# ####
 # uncomment any volumes to mount dirs from host
 # optionally uncomment args e.g. additional ftp ports
 ###################################################################   ####  # ##

@@ -1,4 +1,4 @@
-# docker-glftpd (v3)
+# docker-glftpd (v4)
 
 [![Docker](https://github.com/silv3rr/docker-glftpd/actions/workflows/docker.yml/badge.svg)](https://github.com/silv3rr/docker-glftpd/actions/workflows/docker.yml)
 
