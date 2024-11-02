@@ -1,5 +1,5 @@
 ##################################################################   ####  # ##
-# >> DOCKERFILE-GLFTPD-V3
+# >> DOCKERFILE-GLFTPD-V4
 ##################################################################   ####  # ##
 
 # other base images
@@ -8,7 +8,7 @@
 
 # debian base img
 
-FROM debian:bookworm-slim as deb_base
+FROM debian:bookworm-slim AS deb_base
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -63,13 +63,15 @@ ARG DEBCONF_NOWARNINGS="yes"
 ARG PZS_URL=https://github.com/glftpd/pzs-ng/archive/master.tar.gz
 WORKDIR /build
 COPY --from=deb_base / /
-COPY etc/pzs-ng/zsconfig.h.gz pzs-ng-master/zipscript/conf/zsconfig.h.gz
 COPY src src
+COPY etc/pzs-ng/zsconfig.h.gz pzs-ng-master/zipscript/conf/zsconfig.h.gz
+COPY zsconfig.[h] .
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3003,DL3008
 RUN mkdir /glftpd && \
   if [ "${INSTALL_ZS:-0}" -eq 1 ]; then \
     gunzip -v pzs-ng-master/zipscript/conf/zsconfig.h.gz; \
+    test -s zsconfig.h && mv -f -v zsconfig.h pzs-ng-master/zipscript/conf/zsconfig.h; \
     PZS_TGZ="src/master.tar.gz"; \
     if [ ! -s "$PZS_TGZ" ]; then \
       PZS_TGZ="master.tar.gz" && \
@@ -77,14 +79,18 @@ RUN mkdir /glftpd && \
     fi ;\
     tar -xf "$PZS_TGZ" && \
     ( cd pzs-ng-master && \
-          ./configure --enable-gl202-64 && \
-          make && \
-          make install ) && \
+      ./configure --enable-gl202-64 && \
+      make && \
+      make install ) && \
     ( cd pzs-ng-master/sitebot && \
       mkdir -p /glftpd/sitebot/pzs-ng/themes && \
       cp -R ngBot.* plugins themes modules /glftpd/sitebot/pzs-ng/ && \
-      cp ngBot.conf.dist /glftpd/sitebot/pzs-ng/ngBot.conf ); \
-  fi
+      cp ngBot.conf.dist /glftpd/sitebot/pzs-ng/ngBot.conf ) ;\
+    fi
+
+FROM scratch AS zs-artifacts
+COPY --chown=0:0 --from=build /build/pzs-ng-master/zipscript/conf/zsconfig.h /bin/
+COPY --chown=0:0 --from=build /glftpd/bin /bin
 
 # install glftpd
 
