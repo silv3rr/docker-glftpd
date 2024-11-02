@@ -75,6 +75,12 @@ Wrapper script to (re)build images that can be used for local images besides the
 
 See [docs/Build.md](docs/Build.md)
 
+### docker-build-zs.sh
+
+Recompiles pzs-ng inside temporary container.
+
+Run this script with a modified zsconfig.h in same dir, and it will put the updated bins in custom/pzs-ng/bin. Also see [docs/Customization.md](docs/Customization.md).
+
 ## Compose
 
 What about docker compose you ask? Sure, just run `docker compose up --detach`. Details: [docs/Compose.md](docs/Compose.md).
