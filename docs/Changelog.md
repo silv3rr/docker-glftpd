@@ -1,5 +1,10 @@
 # Changelog
 
+## V4
+
+- added: recompile pzs-ng
+- fixed: image size
+
 ## V3
 
 ### glftpd

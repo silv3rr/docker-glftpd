@@ -60,22 +60,24 @@ Adds optional sitebot which will listen on port 3333. Login to partyline using t
 
 Executable \*.sh scripts in 'entrypoint.d' dir will run on container start.
 
-Also, if a directory called 'custom' exists, it will be mounted to /custom inside the container.
+Also, if a directory called 'custom' exists (in workdir), it will be mounted to /custom inside the container.
 
 Both dirs are bind mounted by `customizer.sh`
 
-These can be combined to put for example a custom ngBot zs theme in 'custom' dir and a script 'entrypoint.d/bot_themes.sh' that copies it from /custom/theme.zst to botdir.
+These can be combined to put for example a new dupescript in 'custom' dir and a oneline script 'entrypoint.d/copy_script.sh' that copies it from /custom/dupescript.sh to /glftpd/bin.
 
-**Examples:**
+### pzs-ng
 
-Copy bot themes: `entrypoint.d/bot_theme.sh`  (_silver.zst to ./custom dir_)
+This 'custom' dir is also used to update pzs-ng's zipscript-c. Running `docker-build-zs.sh` creates updated binaries in custom/pzs-ng/bin. After (re)starting, entrypoint.d/pzs-ng.sh will run and copy zipscript-c to /glftpd/bin inside container.
 
-```
-#!/bin/sh
-cp -u -v /custom/silver.zst /glftpd/sitebot/pzs-ng/themes
-```
+To update instantly, docker cp will also work e.g. `docker cp custom/pzs-ng/bin/zipscript-c glftpd:/glftpd/bin`.
+
+To disable, `chmod `-x or delete entrypoint.d/pzs-ng.sh
+
+### More entrypoint.d examples
 
 Run mknod: `entrypoint.d/mknod.sh`
+
 ```
 #!/bin/sh
 
@@ -85,7 +87,8 @@ mknod -m 011 /glftpd/dev/full c 1 7
 mknod -m 011 /glftpd/dev/urandom c 1 9
 ```
 
-Copy scripts to gl dir: `entrypoint.d/glscripts.sh`
+Copy all files in scripts dir to gl's bin dir: `entrypoint.d/glscripts.sh`
+
 ```
 #!/bin/sh
 
@@ -95,3 +98,8 @@ if [ -d /custom/scripts ]; then
   fi
 fi
 ```
+
+Copy foo-pre and modify glftpd.conf: `entrypoint.d/foo-pre.sh`
+
+\<see [foo-pre.sh]([foo-pre.sh])\>
+
