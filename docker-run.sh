@@ -6,19 +6,20 @@ VERSION=V4
 #
 # ENVIRONMENT VARIABLES:
 #
-# GL_DATA=<path>                    glftpd/bot data dir for container (./glftpd)
-# GLFTPD_CONF=1                     mount glftpd/glftpd.conf from host *
-# GLFTPD_PERM_UDB=1                 use permanent userdb
-# GLFTPD_PASSWD="<Passw0rd>"        set user 'glftpd' <passwd> (needs PERM_UDB)
-# GLFTPD_SITE=1                     mount host dir ./glftpd/site /glftpd/site
-# GLFTPD_PORT="<1234>"              change listen <port> (default is 1337)
-# GLFTPD_PASV_PORTS="<5000-5100>"   set passive <ports range>, set GLFTPD_CONF=1
-# GLFTPD_PASV_ADDR="<1.2.3.4>"      set passive <address>, add "1" for internal
-#                                   NAT e.g. "10.0.1.2 1"; needs GLFTPD_CONF=1
-# IRC_SERVERS="<irc.foo.com:6667>"  set bot irc server(s), space delimited
-# IRC_CHANNELS="<#mychan>"          set bot irc channels(s), space delimited
-# USE_FULL=1                        use 'docker-glftpd:full' image
-# FORCE=1                           remove any existing container first
+# GL_DATA="<path>"                 basedir for gl bind mounts (default=./glftpd)
+#                                  gl/bot config and data is stored here
+# GLFTPD_CONF=1                    mount glftpd.conf *
+# GLFTPD_PERM_UDB=1                use permanent userdb
+# GLFTPD_PASSWD="<Passw0rd>"       set user 'glftpd' <passwd> (needs PERM_UDB)
+# GLFTPD_SITE=1                    mount host dir ./glftpd/site /glftpd/site
+# GLFTPD_PORT="<1234>"             change listen <port> (default is 1337)
+# GLFTPD_PASV_PORTS="<5000-5100>"  set passive <ports range>, set GLFTPD_CONF=1
+# GLFTPD_PASV_ADDR="<1.2.3.4>"     set passive <address>, add "1" for internal
+#                                  NAT e.g. "10.0.1.2 1"; needs GLFTPD_CONF=1
+# IRC_SERVERS="<irc.foo.com:6667>" set bot irc server(s), space delimited
+# IRC_CHANNELS="<#mychan>"         set bot irc channels(s), space delimited
+# USE_FULL=1                       use 'docker-glftpd:full' image
+# FORCE=1                          remove any existing container first [0|1]
 #
 # GLFTPD_ARGS+= " --any-other-flags "      add any other docker run options
 #
@@ -32,7 +33,6 @@ VERSION=V4
 
 #DEBUG=0
 GL_DATA="./glftpd"
-GL_DIR="./glftpd"
 GLFTPD=1
 #WEBUI=0
 #WEBUI_LOCAL=1
@@ -113,12 +113,38 @@ if [ -z "$NETWORK" ]; then
   fi
 fi
 
+# local: check for existing glftpd install on host
 if [ "${WEBUI_LOCAL:-0}" -eq 1 ]; then
-  NETWORK="host"
+  if [ -z "$GL_DIR" ]; then
+    for i in /jail/glftpd /glftpd; do
+      if [ -d "$i/site" ] && [ -f "$i/bin/glftpd" ]; then
+        GL_DIR="$i"
+        echo "Found glftpd on host: $i"
+        break
+      fi
+    done
+  fi
+  if [ -n "$GL_DIR" ]; then
+    WEBUI_ARGS+=" --ipc=host "
+    echo "* Using hosts IPC namespace"
+    NETWORK="host"
+    WEBUI_ARGS+=" --mount type=bind,src=${GL_DIR:-/glftpd},dst=/glftpd "
+    echo "* Mounting \$GL_DATA as /glftpd"
+  fi
+fi
+
+# local: exception, systemd dbus broker (debian)
+if [ "${WEBUI_DBUS:-0}" -eq 1 ]; then
+  DOCKER_IMAGE_WEBUI="docker-glftpd-web:debian"
+  WEBUI_ARGS+=" --privileged -v /run/systemd:/run/systemd  -v /run/dbus:/run/dbus "
+  echo "* Using systemd and dbus broker to start/stop glftpd"
+  sed -i -r "s|^(.*'env_bus'\s*=>\s*\")(.*)(\",.*)$|\1/usr/bin/env SYSTEMCTL_FORCE_BUS=1\3|" /app/config.php
+fi
+
+# set port
+if [ "${NETWORK:-"bridge"}" = "host" ]; then
   WEBUI_ARGS+=" --env WEBUI_PORT=4444 "
   echo "* Running webui on host network: https://localhost:4444"
-  WEBUI_ARGS+=" --mount type=bind,src=${GL_DIR:-/glftpd},dst=/glftpd "
-  echo "* Mounting \$GL_DIR as /glftpd"
 else
   WEBUI_ARGS+=" --publish "${IP_ADDR:-127.0.0.1}:4444:443" "
 fi
