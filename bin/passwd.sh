@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# docker-glftpd::passwd
+
 if [ -n "$1" ]; then
   echo
   if command -v htpasswd >/dev/null 2>&1; then

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# docker-glftpd::entrypoint
+
 priv_ips="172.16.0.0/12 192.168.0.0/16 10.0.0.0/8"
 sep="$(printf "#"%.0s {1..50})"
 
