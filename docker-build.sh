@@ -27,8 +27,8 @@ BUILD_GLFTPD=1
 #INSTALL_WEBUI=0
 
 # set glftpd version
-GLFTPD_URL="${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"}"
-GLFTPD_SHA="${GLFTPD_SHA:-"981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad"}"
+GLFTPD_URL="${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.15_3.4.0_x64.tgz"}"
+GLFTPD_SHA="${GLFTPD_SHA:-"a9ce10867aed6a377c7d47864d59668a433956fba1998acc8bf8d6f16c06870143c66b987586281d65e1fe99422fe57ef99fbc71bc62bbd34448b1a4af24264b"}"
 GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*/\1/' )"
 
 ARGS+="$*"

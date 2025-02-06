@@ -88,7 +88,7 @@ services:
       args: &glftpd_args
         # if glftpd.io is down, uncomment to use mirror
         # - GLFTPD_URL=https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz
-        - GLFTPD_SHA=981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad
+        - GLFTPD_SHA=a9ce10867aed6a377c7d47864d59668a433956fba1998acc8bf8d6f16c06870143c66b987586281d65e1fe99422fe57ef99fbc71bc62bbd34448b1a4af24264b
         - INSTALL_ZS=1
         - INSTALL_BOT=1
         - INSTALL_WEBUI=1
