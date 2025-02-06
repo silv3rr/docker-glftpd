@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
 
 # glftpd.io is down
-env:
-  GLFTPD_URL: "https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"
+#env:
+#  GLFTPD_URL: "https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.15_3.4.0_x64.tgz"
 
 jobs:
   docker-images:
@@ -34,7 +34,7 @@ jobs:
       - name: Build basic glftpd image
         run: INSTALL_WEBUI=0 INSTALL_ZS=0 INSTALL_BOT=0 ./docker-build.sh
       - name: Push image
-        run:  |
+        run: |
           docker tag docker-glftpd:latest ghcr.io/silv3rr/docker-glftpd:latest
           docker push ghcr.io/silv3rr/docker-glftpd:latest
       - name: Build full glftpd image
