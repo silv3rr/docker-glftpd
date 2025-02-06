@@ -1,5 +1,10 @@
 # Changelog
 
+## V5
+
+- updated: glftpd 2.15
+- updated: gltool
+
 ## V4
 
 - added: recompile pzs-ng
