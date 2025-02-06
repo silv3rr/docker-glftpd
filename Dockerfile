@@ -98,7 +98,7 @@ FROM deb_base AS glftpd
 HEALTHCHECK CMD bash -c '>/dev/tcp/localhost/1337'
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
-ARG GLFTPD_URL=${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.14a_3.0.12_x64.tgz"}
+ARG GLFTPD_URL=${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.15_3.4.0_x64.tgz"}
 ARG GLFTPD_SHA=${GLFTPD_SHA:-981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad}
 ARG INSTALL_ZS=0
 ARG INSTALL_BOT=0
