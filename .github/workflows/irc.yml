@@ -1,9 +1,9 @@
-name: "Push Notification"
+name: "IRC Push Notification"
 #on: [push, pull_request, create]
 on: push
 
 jobs:
-  message-irc:
+  message:
     runs-on: ubuntu-latest
     steps:
       - name: irc push
