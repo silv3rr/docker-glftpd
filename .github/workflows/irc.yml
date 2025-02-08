@@ -1,5 +1,4 @@
 name: "IRC Push Notification"
-#on: [push, pull_request, create]
 on: push
 
 jobs:
@@ -18,21 +17,3 @@ jobs:
           message: |-
             ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }}
             commit: ${{ join(github.event.commits.*.message, ', ') }}
-#      - name: irc pull request
-#        uses: rectalogic/notify-irc@v1
-#        if: github.event_name == 'pull_request'
-#        with:
-#          channel: "#mychannel"
-#          server: "irc.libera.chat"
-#          nickname: my-github-notifier
-#          message: |
-#            ${{ github.actor }} opened PR ${{ github.event.pull_request.html_url }}
-#      - name: irc tag created
-#        uses: rectalogic/notify-irc@v1
-#        if: github.event_name == 'create' && github.event.ref_type == 'tag'
-#        with:
-#          channel: "#mychannel"
-#          server: "irc.libera.chat"          
-#          nickname: my-github-notifier
-#          message: |
-#            ${{ github.actor }} tagged ${{ github.repository }} ${{ github.event.ref }}
