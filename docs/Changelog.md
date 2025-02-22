@@ -3,6 +3,7 @@
 ## V5
 
 - updated: glftpd 2.15
+- updated: webui
 - updated: gltool
 
 ## V4
