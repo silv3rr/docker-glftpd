@@ -6,11 +6,11 @@ Besides `docker-run.sh`, you can also run images manually:
 - Full: `docker run ghcr.io/silv3rr/docker-glftpd:full`
 - WebUI: `docker run ghcr.io/silv3rr/docker-glftpd-web`
 
-Also, you don't have to use any of the included scripts and stuff, the images work fine on their own too (bind mount your config files).
+Notes: 
 
-Note: some changes may first require either switching to the 'full' image, a local image build or need a container restart to activate.
-
-To build your own local images, check [docs/Build.md](docs/Build.md)
+- you don't have to use any of the included scripts and stuff, the images work fine on their own too (bind mount your config files).
+- some changes may first require either switching to the 'full' image, a local image build or need a container restart to activate.
+- To build your own local images, check [docs/Build.md](docs/Build.md)
 
 ## glftpd
 
@@ -26,19 +26,19 @@ The image comes in two flavors: a basic ftpd only setup or a 'full' install. The
 
 _aka shitty web interface :)_
 
-Connects to glftpd container to manage it, gl userdb and show online users. Runs in a separate container. Building with `INSTALL_WEBUI=1` sets label to auto start on  `./docker-run.sh` (`WEBUI=1`).
+Connects to glftpd container to manage it, edit gl userdb and show online users. The webui runs in a separate container. Building with `INSTALL_WEBUI=1` sets label to auto start on  `./docker-run.sh` (`WEBUI=1`).
 
 For more info, see [glftpd-webui](https://github.com/silv3rr/glftpd-webui)
 
 # Customizer script
 
-A shell script called `customizer.sh` is called by `docker-run.sh` which sets up mounts, glftpd.conf, userdb and sitebot.
+A shell script named `customizer.sh` is called by `docker-run.sh` which sets up mounts, glftpd.conf, userdb and sitebot.
 
 # Components
 
 _aka addons/plugins_
 
-Check labels to see if zs, bot webui or are enabled:
+Check labels to see if zs, bot or webui are enabled:
 
 `docker image inspect --format='{{ index .Config.Labels "gl.sitebot.setup" }}' docker-glftpd`
 
@@ -46,7 +46,7 @@ Check labels to see if zs, bot webui or are enabled:
 
 `docker image inspect --format='{{ index .Config.Labels "gl.web.setup" }}' docker-glftpd`
 
-or: `bin/labels.sh`
+or run `bin/labels.sh`
 
 ## ZS
 
