@@ -11,7 +11,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-# glftpd.io is down
+# if glftpd.io is down
 #env:
 #  GLFTPD_URL: "https://mirror.glftpd.nl.eu.org/files/glftpd-LNX-2.15_3.4.0_x64.tgz"
 

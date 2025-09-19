@@ -3,12 +3,11 @@
 ##################################################################   ####  # ##
 
 # other base images
-#   debian:bookworm-slim debian:bookworm
-#   gcc:13 gcc:12.2.0-bookworm gcc:10.5.0-bullseye
+#   debian:bookworm-slim debian-bookworm
 
 # debian base img
 
-FROM debian:bookworm-slim AS deb_base
+FROM debian:trixie-slim AS deb_base
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -56,7 +55,7 @@ RUN if [ "${INSTALL_BOT:-0}" -eq 1 ]; then \
 
 # compile pzs-ng (optional)
 
-FROM gcc:12-bookworm AS build
+FROM gcc:14-trixie AS build
 ARG INSTALL_ZS=0
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
