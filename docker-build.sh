@@ -26,10 +26,20 @@ VERSION=V5
 BUILD_GLFTPD=1
 #INSTALL_WEBUI=0
 
-# set glftpd version
-GLFTPD_URL="${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.15_3.4.0_x64.tgz"}"
-GLFTPD_SHA="${GLFTPD_SHA:-"a9ce10867aed6a377c7d47864d59668a433956fba1998acc8bf8d6f16c06870143c66b987586281d65e1fe99422fe57ef99fbc71bc62bbd34448b1a4af24264b"}"
-GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*/\1/' )"
+# set glftpd version to override default from Dockerfile
+#GLFTPD_URL="https://glftpd.io/files/glftpd-LNX-x.xx_x.x.x_x64.tgz"
+#GLFTPD_SHA="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+GLFTPD_VER="$(sed -n 's/ARG GLFTPD_URL=.*glftpd.*-\([0-9\.]\+[a-z]\?\)_.*/\1/p' Dockerfile)"
+
+if [ -n "$GLFTPD_URL" ]; then
+  ARGS+=" --build-arg GLFTPD_URL=\"${GLFTPD_URL}\" "
+  GLFTPD_VER="$( basename "$GLFTPD_URL" | sed 's/^glftpd.*-\([0-9\.]\+[a-z]\?\)_.*/\1/' )"
+fi
+
+if [ -n "$GLFTPD_SHA" ]; then
+  ARGS+=" --build-arg GLFTPD_SHA=\"${GLFTPD_SHA}\" "
+fi
 
 ARGS+="$*"
 
@@ -50,8 +60,6 @@ if [ "${BUILD_GLFTPD:-1}" -eq 1 ]; then
     --cache-from "docker-glftpd:${TAG}" \
     --tag "docker-glftpd:${TAG}" \
     --tag "docker-glftpd:${GLFTPD_VER:-2}" \
-    --build-arg GLFTPD_URL="${GLFTPD_URL}" \
-    --build-arg GLFTPD_SHA="${GLFTPD_SHA}" \
     --build-arg INSTALL_BOT="${INSTALL_BOT:-0}" \
     --build-arg INSTALL_ZS="${INSTALL_ZS:-0}" \
     --build-arg INSTALL_WEBUI="${INSTALL_WEBUI:-0}" \

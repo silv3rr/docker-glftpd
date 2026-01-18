@@ -1,5 +1,5 @@
 ##################################################################   ####  # ##
-# >> DOCKERFILE-GLFTPD-V4
+# >> DOCKERFILE-GLFTPD-V5
 ##################################################################   ####  # ##
 
 # other base images
@@ -97,8 +97,8 @@ FROM deb_base AS glftpd
 HEALTHCHECK CMD bash -c '>/dev/tcp/localhost/1337'
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NOWARNINGS="yes"
-ARG GLFTPD_URL=${GLFTPD_URL:-"https://glftpd.io/files/glftpd-LNX-2.15_3.4.0_x64.tgz"}
-ARG GLFTPD_SHA=${GLFTPD_SHA:-981fec98d3c92978f8774a864729df0a2bca91afc0672c51833f0cfc10ac04935ccaadfe9798a02711e3a1c4c714ddd75d5edd5fb54ff46ad495b1a2c391c1ad}
+ARG GLFTPD_URL="https://glftpd.io/files/glftpd-LNX-2.16_3.6.0_x64.tgz"
+ARG GLFTPD_SHA="2269c40146a9b81743ff08711b11f1f28ad1c704a38aa65bd0b8ac53de8290e2750d287dcbb7f5784e63bd961584a11475625650bd662f2b3869fd9f64c43e80"
 ARG INSTALL_ZS=0
 ARG INSTALL_BOT=0
 ARG INSTALL_WEBUI=0
